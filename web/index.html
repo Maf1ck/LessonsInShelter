@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12151a">
+<title>Звук уроку</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="site" id="site">—</div>
+  <h1 id="subtitle">Звук уроку</h1>
+</header>
+
+<div class="channel-list" id="list">
+  <div class="empty">Завантаження…</div>
+</div>
+
+<div class="hint">
+  <b>Як слухати</b>
+  <ul>
+    <li>Підключи навушники.</li>
+    <li>Обери свій клас у списку.</li>
+    <li>Натисни велику кнопку «Слухати».</li>
+    <li>Гучність — кнопками збоку телефона.</li>
+  </ul>
+</div>
+
+<script>
+fetch('channels.json?t=' + Date.now())
+  .then(function (r) { return r.json(); })
+  .then(function (cfg) {
+    document.getElementById('site').textContent = cfg.site || '';
+    document.getElementById('subtitle').textContent = cfg.subtitle || 'Звук уроку';
+    document.title = cfg.subtitle || 'Звук уроку';
+
+    var list = document.getElementById('list');
+    var channels = cfg.channels || [];
+    if (!channels.length) {
+      list.innerHTML = '<div class="empty">Каналів поки немає</div>';
+      return;
+    }
+    list.innerHTML = '';
+    channels.forEach(function (ch) {
+      var a = document.createElement('a');
+      a.className = 'channel';
+      a.href = 'listen.html?ch=' + encodeURIComponent(ch.id);
+      a.innerHTML =
+        '<span class="dot"></span>' +
+        '<span><span class="name"></span><br><span class="room"></span></span>' +
+        '<span class="arrow">›</span>';
+      a.querySelector('.dot').style.background = ch.color || 'var(--accent)';
+      a.querySelector('.name').textContent = ch.name || ch.id;
+      a.querySelector('.room').textContent = ch.room || '';
+      list.appendChild(a);
+    });
+  })
+  .catch(function () {
+    document.getElementById('list').innerHTML =
+      '<div class="empty">Немає зв\'язку з сервером.<br>Перевір, що телефон підключений до шкільної Wi-Fi мережі.</div>';
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12151a">
+<title>Слухати урок</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<a class="back" href="index.html">‹ Усі класи</a>
+
+<div class="player">
+  <div class="channel-title" id="title">—</div>
+  <div class="channel-sub" id="sub"></div>
+
+  <button class="listen-btn" id="btn" data-state="idle">▶ Слухати</button>
+
+  <div class="status" id="status" data-state="idle">
+    <span class="led"></span><span id="statusText">Натисни кнопку, щоб увімкнути звук</span>
+  </div>
+
+  <div class="level" id="level" hidden>
+    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+  </div>
+
+  <div class="volume">
+    <label for="vol">Гучність у навушниках</label>
+    <input type="range" id="vol" min="0" max="100" value="100">
+  </div>
+
+  <div class="fallback">
+    <button id="fallbackBtn" hidden>Спробувати повільний режим</button>
+  </div>
+
+  <div class="hint">
+    <b>Якщо звуку немає</b>
+    <ul>
+      <li>Перевір, що навушники справді вставлені.</li>
+      <li>Додай гучність кнопками збоку телефона.</li>
+      <li>Не блокуй екран телефона під час уроку.</li>
+      <li>Якщо телефон запитує «Мережа без інтернету» — обери «Залишатися підключеним».</li>
+    </ul>
+  </div>
+</div>
+
+<audio id="audio" autoplay playsinline></audio>
+
+<script src="whep.js"></script>
+<script>
+(function () {
+  var params = new URLSearchParams(location.search);
+  var chId = params.get('ch');
+
+  var btn = document.getElementById('btn');
+  var statusEl = document.getElementById('status');
+  var statusText = document.getElementById('statusText');
+  var audio = document.getElementById('audio');
+  var levelEl = document.getElementById('level');
+  var fallbackBtn = document.getElementById('fallbackBtn');
+  var bars = levelEl.querySelectorAll('i');
+
+  var cfg = null, channel = null, player = null, wakeLock = null;
+
+  var LABEL = {
+    idle: 'Натисни кнопку, щоб увімкнути звук',
+    connecting: 'Підключення…',
+    live: 'Звук іде',
+    error: 'Помилка'
+  };
+
+  function setState(state, message) {
+    statusEl.dataset.state = state;
+    statusText.textContent = message || LABEL[state] || '';
+    btn.dataset.state = state;
+    if (state === 'live') {
+      btn.textContent = '■ Зупинити';
+      levelEl.hidden = false;
+      requestWakeLock();
+    } else if (state === 'connecting') {
+      btn.textContent = '■ Зупинити';
+    } else {
+      btn.textContent = '▶ Слухати';
+      levelEl.hidden = true;
+      resetBars();
+    }
+    fallbackBtn.hidden = (state !== 'error' && state !== 'connecting');
+  }
+
+  function resetBars() {
+    for (var i = 0; i < bars.length; i++) {
+      bars[i].classList.remove('on');
+      bars[i].style.height = '6px';
+    }
+  }
+
+  fetch('channels.json?t=' + Date.now())
+    .then(function (r) { return r.json(); })
+    .then(function (c) {
+      cfg = c;
+      var found = (c.channels || []).filter(function (x) { return x.id === chId; })[0];
+      channel = found || { id: chId, name: chId, room: '' };
+      document.getElementById('title').textContent = channel.name || chId;
+      document.getElementById('sub').textContent = channel.room || '';
+      document.title = (channel.name || chId) + ' — звук уроку';
+
+      var port = c.webrtcPort || 8889;
+      player = new WhepPlayer({
+        url: location.protocol + '//' + location.hostname + ':' + port + '/' + encodeURIComponent(channel.id) + '/whep',
+        audio: audio,
+        onState: setState
+      });
+    })
+    .catch(function () {
+      setState('error', 'Немає зв\'язку зі шкільним сервером');
+    });
+
+  btn.addEventListener('click', function () {
+    if (!player) return;
+    if (btn.dataset.state === 'idle' || btn.dataset.state === 'error') {
+      audio.muted = false;
+      player.start();
+      startMeter();
+    } else {
+      player.stop();
+      releaseWakeLock();
+    }
+  });
+
+  document.getElementById('vol').addEventListener('input', function () {
+    // iOS ігнорує програмну гучність — там працюють лише кнопки телефона.
+    audio.volume = this.value / 100;
+  });
+
+  /* ---- резервний повільний режим: HLS (затримка кілька секунд) ---- */
+  fallbackBtn.addEventListener('click', function () {
+    if (!cfg || !channel) return;
+    if (player) player.stop();
+    var port = cfg.hlsPort || 8888;
+    audio.srcObject = null;
+    // Окремий AAC-потік: Safari не вміє Opus у HLS.
+    audio.src = location.protocol + '//' + location.hostname + ':' + port + '/' + encodeURIComponent(channel.id) + '-slow/index.m3u8';
+    setState('connecting', 'Повільний режим: підключення…');
+    // Сервер збирає HLS лише на перший запит, тож перші кілька секунд
+    // плейлиста ще немає — пробуємо кілька разів, а не падаємо одразу.
+    tryFallback(6);
+  });
+
+  function tryFallback(left) {
+    audio.load();
+    audio.play().then(function () {
+      setState('live', 'Повільний режим (затримка кілька секунд)');
+    }).catch(function () {
+      if (left > 0) {
+        setTimeout(function () { tryFallback(left - 1); }, 1500);
+      } else {
+        setState('error', 'Резервний режим теж недоступний');
+      }
+    });
+  }
+
+  /* ---- індикатор рівня ---- */
+  var analyser = null;
+  function startMeter() {
+    if (analyser) return;
+    try {
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      var ctx = new Ctx();
+      audio.addEventListener('playing', function once() {
+        audio.removeEventListener('playing', once);
+        try {
+          var src = ctx.createMediaStreamSource(audio.srcObject);
+          analyser = ctx.createAnalyser();
+          analyser.fftSize = 256;
+          src.connect(analyser);
+          ctx.resume();
+          drawMeter();
+        } catch (e) { levelEl.hidden = true; }
+      });
+    } catch (e) { levelEl.hidden = true; }
+  }
+
+  function drawMeter() {
+    if (!analyser) return;
+    var data = new Uint8Array(analyser.frequencyBinCount);
+    analyser.getByteTimeDomainData(data);
+    var peak = 0;
+    for (var i = 0; i < data.length; i++) {
+      var v = Math.abs(data[i] - 128) / 128;
+      if (v > peak) peak = v;
+    }
+    var active = Math.min(bars.length, Math.round(peak * bars.length * 2.2));
+    for (var j = 0; j < bars.length; j++) {
+      bars[j].classList.toggle('on', j < active);
+      bars[j].style.height = (j < active ? 6 + j * 1.6 : 6) + 'px';
+    }
+    requestAnimationFrame(drawMeter);
+  }
+
+  /* ---- не давати екрану гаснути (працює не в усіх браузерах по HTTP) ---- */
+  function requestWakeLock() {
+    if (wakeLock || !navigator.wakeLock) return;
+    navigator.wakeLock.request('screen')
+      .then(function (l) { wakeLock = l; })
+      .catch(function () {});
+  }
+  function releaseWakeLock() {
+    if (wakeLock) { try { wakeLock.release(); } catch (e) {} wakeLock = null; }
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible' && btn.dataset.state === 'live') requestWakeLock();
+  });
+})();
+</script>
+
+</body>
+</html>

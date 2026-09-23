@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Аркуш на стіну</title>
+<style>
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    background: #fff; color: #111;
+    max-width: 760px; margin: 0 auto; padding: 32px 28px;
+    line-height: 1.5;
+  }
+  h1 { font-size: 40px; margin: 0 0 4px; }
+  .sub { color: #555; font-size: 18px; margin-bottom: 28px; }
+  ol { font-size: 26px; padding-left: 30px; }
+  li { margin-bottom: 18px; }
+  .big { font-size: 30px; font-weight: 700; }
+  .box { border: 3px solid #111; border-radius: 14px; padding: 18px 22px; margin: 26px 0; }
+  .note { font-size: 17px; color: #444; }
+  .qr { display: flex; gap: 22px; align-items: center; margin-top: 26px; }
+  .qr img { width: 190px; height: 190px; border: 2px solid #111; border-radius: 10px; }
+  .qr .ph {
+    width: 190px; height: 190px; border: 2px dashed #999; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: #888; font-size: 14px; text-align: center; padding: 12px;
+  }
+  @media print { body { padding: 0; } .noprint { display: none; } }
+</style>
+</head>
+<body>
+
+<h1>Звук уроку в навушниках</h1>
+<div class="sub">Київська СЗШ №279 ім. П. Григоренка</div>
+
+<ol>
+  <li>Увімкни <b>Wi-Fi</b> і підключись до мережі<br>
+      <span class="big">Ukryttia-279</span><br>
+      <span class="note">Якщо телефон пише «мережа без інтернету» — обери «Залишатися підключеним».</span></li>
+  <li>Відкрий у браузері<br>
+      <span class="big">http://10.0.0.1:8080</span></li>
+  <li>Обери <b>свій клас</b> у списку.</li>
+  <li>Встав навушники і натисни велику кнопку <b>«Слухати»</b>.</li>
+  <li>Гучність — кнопками збоку телефона.</li>
+</ol>
+
+<div class="box">
+  <b>Не гаси екран телефона під час уроку</b> — звук може зупинитися.<br>
+  <span class="note">Немає навушників — сідай ближче до дошки.</span>
+</div>
+
+<div class="qr">
+  <div class="ph">Сюди вклеїти<br>QR-код на адресу<br>сторінки</div>
+  <div class="note">
+    QR-код зручно згенерувати заздалегідь, поки є інтернет, і роздрукувати разом з аркушем.
+    Адресу і назву мережі замініть на ваші.
+  </div>
+</div>
+
+<p class="noprint note" style="margin-top:30px">
+  Друкувати: Ctrl+P, орієнтація книжкова, поля мінімальні.
+</p>
+
+</body>
+</html>

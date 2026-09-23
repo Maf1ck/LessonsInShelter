@@ -1,0 +1,43 @@
+# Конфігурація MediaMTX для шкільного «радіовузла» в укритті.
+# Працює повністю в локальній мережі, без доступу до інтернету.
+
+logLevel: info
+readTimeout: 10s
+writeTimeout: 10s
+writeQueueSize: 512
+
+# Зайве вимикаємо, щоб не навантажувати Raspberry Pi.
+api: no
+metrics: no
+pprof: no
+playback: no
+rtmp: no
+srt: no
+
+# Сюди публікує звук ffmpeg з мікрофона вчителя.
+rtsp: yes
+rtspAddress: :8554
+
+# Основний режим для дітей: WebRTC, затримка ~0.2 c.
+webrtc: yes
+webrtcAddress: :8889
+webrtcLocalUDPAddress: :8189
+webrtcIPsFromInterfaces: yes
+# У локальній мережі зовнішні STUN/TURN не потрібні (і недоступні без інтернету).
+webrtcICEServers2: []
+# Якщо автовизначення адреси не спрацює, вкажіть IP сервера вручну:
+# webrtcAdditionalHosts: [10.0.0.1]
+
+# Резервний «повільний режим» для телефонів, де WebRTC не запрацював.
+# Потоки з суфіксом -slow публікуються в AAC, бо Safari не грає Opus у HLS.
+hls: yes
+hlsAddress: :8888
+hlsVariant: mpegts
+# Муксер створюється лише тоді, коли хтось натиснув «повільний режим»,
+# інакше сервер сипле помилками на Opus-канали, які в HLS не віддаються.
+hlsAlwaysRemux: no
+hlsSegmentCount: 7
+hlsSegmentDuration: 1s
+
+paths:
+  all_others:

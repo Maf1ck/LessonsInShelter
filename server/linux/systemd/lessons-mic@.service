@@ -1,0 +1,18 @@
+[Unit]
+# Один екземпляр на клас:  systemctl start lessons-mic@klas-5a
+# Пристрій задається у /etc/default/lessons-mic, напр.:  DEVICE=plughw:1,0
+Description=Lessons in shelter — мікрофон каналу %i
+After=lessons-server.service
+Requires=lessons-server.service
+
+[Service]
+Type=simple
+User=pi
+EnvironmentFile=-/etc/default/lessons-mic
+Environment=DEVICE=plughw:1,0
+ExecStart=/opt/lessonsinshelter/server/linux/start-mic.sh ${DEVICE} %i
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

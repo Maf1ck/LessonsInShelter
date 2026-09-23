@@ -1,0 +1,6 @@
+Сюди кладемо виконувані файли, які не зберігаємо в репозиторії:
+
+  mediamtx(.exe)  — https://github.com/bluenviron/mediamtx/releases
+  ffmpeg(.exe)    — https://www.gyan.dev/ffmpeg/builds/ (Windows) або apt install ffmpeg
+
+На Linux їх ставить server/linux/install.sh

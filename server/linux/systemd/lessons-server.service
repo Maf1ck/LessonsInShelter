@@ -1,0 +1,14 @@
+[Unit]
+Description=Lessons in shelter — медіасервер (MediaMTX)
+After=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/opt/lessonsinshelter
+ExecStart=/opt/lessonsinshelter/server/bin/mediamtx /opt/lessonsinshelter/server/mediamtx.yml
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

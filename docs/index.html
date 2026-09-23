@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#12151a">
+<title>Lessons in Shelter — звук уроку в укритті</title>
+<meta name="description" content="Голос учителя в навушниках кожної дитини під час уроку в укритті. Без інтернету, без застосунку, без реєстрації.">
+<style>
+/* Жодних зовнішніх шрифтів і CDN: сторінка має відкриватись і без інтернету. */
+:root {
+  --bg: #12151a;
+  --surface: #1b2029;
+  --surface-2: #232a35;
+  --border: #323b49;
+  --text: #eef2f7;
+  --muted: #9aa6b6;
+  --accent: #e0b341;
+  --accent-ink: #1a1508;
+  --err: #e2685f;
+  --radius: 18px;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0;
+  background: var(--bg); color: var(--text);
+  font-family: var(--font); font-size: 17px; line-height: 1.6;
+}
+body { padding: 0 16px 80px; }
+.wrap { max-width: 780px; margin: 0 auto; }
+
+/* ---------- шапка ---------- */
+header.hero { padding: 64px 0 40px; border-bottom: 1px solid var(--border); }
+.kicker { color: var(--accent); font-size: 14px; letter-spacing: .08em; text-transform: uppercase; font-weight: 650; }
+h1 { font-size: 40px; line-height: 1.15; margin: 12px 0 0; font-weight: 700; letter-spacing: -.02em; }
+.lead { font-size: 20px; color: var(--muted); margin: 16px 0 0; max-width: 34em; }
+.badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+.badge {
+  font-size: 13px; color: var(--muted);
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: 5px 13px; background: var(--surface);
+}
+
+/* ---------- зміст ---------- */
+nav.toc { margin: 32px 0 0; padding: 18px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+nav.toc b { font-size: 14px; color: var(--muted); font-weight: 600; }
+nav.toc ol { margin: 10px 0 0; padding-left: 20px; columns: 2; column-gap: 28px; }
+nav.toc li { margin-bottom: 4px; break-inside: avoid; }
+nav.toc a { color: var(--text); text-decoration: none; border-bottom: 1px solid transparent; }
+nav.toc a:hover { border-bottom-color: var(--accent); }
+
+/* ---------- типографіка ---------- */
+h2 { font-size: 27px; margin: 56px 0 4px; font-weight: 680; letter-spacing: -.01em; scroll-margin-top: 20px; }
+h2 .num { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: 10px; }
+h3 { font-size: 19px; margin: 32px 0 6px; font-weight: 650; }
+p { margin: 12px 0; }
+a { color: var(--accent); }
+ul, ol { padding-left: 22px; }
+li { margin-bottom: 6px; }
+strong { font-weight: 650; }
+
+/* ---------- код ---------- */
+pre {
+  background: #0d1015; border: 1px solid var(--border); border-radius: 12px;
+  padding: 14px 16px; overflow-x: auto; margin: 14px 0;
+  font-family: var(--mono); font-size: 14.5px; line-height: 1.55; color: #dbe4ef;
+}
+pre .c { color: var(--muted); }
+code {
+  font-family: var(--mono); font-size: .88em;
+  background: var(--surface-2); border-radius: 5px; padding: 2px 6px;
+}
+pre code { background: none; padding: 0; font-size: inherit; }
+
+/* ---------- схема ---------- */
+.diagram {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 22px 18px; margin: 20px 0; overflow-x: auto;
+  font-family: var(--mono); font-size: 13.5px; line-height: 1.75; color: var(--muted);
+  white-space: pre;
+}
+.diagram b { color: var(--accent); font-weight: 400; }
+
+/* ---------- таблиці ---------- */
+.tablewrap { overflow-x: auto; margin: 18px 0; }
+table { border-collapse: collapse; width: 100%; font-size: 15.5px; }
+th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
+tbody tr:last-child td { border-bottom: none; }
+
+/* ---------- врізки і кроки ---------- */
+.note {
+  border-left: 3px solid var(--accent); background: var(--surface);
+  border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 20px 0;
+  font-size: 15.5px;
+}
+.note.warn { border-left-color: var(--err); }
+.note b { display: block; margin-bottom: 4px; }
+
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 20px 0; }
+.steps > li {
+  counter-increment: step; position: relative;
+  padding: 0 0 4px 46px; margin-bottom: 26px;
+}
+.steps > li::before {
+  content: counter(step);
+  position: absolute; left: 0; top: 1px;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--accent); color: var(--accent-ink);
+  font-weight: 700; font-size: 15px;
+  display: flex; align-items: center; justify-content: center;
+}
+.steps h3 { margin-top: 0; }
+
+footer {
+  margin-top: 72px; padding-top: 24px;
+  border-top: 1px solid var(--border);
+  color: var(--muted); font-size: 14.5px;
+}
+
+@media (max-width: 620px) {
+  header.hero { padding: 40px 0 28px; }
+  h1 { font-size: 30px; }
+  .lead { font-size: 18px; }
+  h2 { font-size: 23px; margin-top: 44px; }
+  nav.toc ol { columns: 1; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="kicker">Lessons in Shelter</div>
+  <h1>Звук уроку в навушниках кожної дитини</h1>
+  <p class="lead">
+    Учитель говорить у петличний мікрофон — голос іде в навушники всього класу.
+    Без інтернету, без застосунку, без реєстрації. Сервер стоїть тут же, в укритті.
+  </p>
+  <div class="badges">
+    <span class="badge">затримка ~0.2 с</span>
+    <span class="badge">30–40 телефонів</span>
+    <span class="badge">працює без інтернету</span>
+    <span class="badge">Windows і Raspberry Pi</span>
+  </div>
+
+  <nav class="toc">
+    <b>На цій сторінці</b>
+    <ol>
+      <li><a href="#problem">Навіщо це</a></li>
+      <li><a href="#how">Як це працює</a></li>
+      <li><a href="#hardware">Що потрібно</a></li>
+      <li><a href="#install">Встановлення</a></li>
+      <li><a href="#daily">Щоденний запуск</a></li>
+      <li><a href="#phones">Як підключаються діти</a></li>
+      <li><a href="#teacher">Що знати вчителю</a></li>
+      <li><a href="#classes">Кілька класів</a></li>
+      <li><a href="#trouble">Якщо не працює</a></li>
+      <li><a href="#pi">Raspberry Pi</a></li>
+    </ol>
+  </nav>
+</header>
+
+<h2 id="problem"><span class="num">01</span>Навіщо це</h2>
+<p>
+  Коли клас спускається в укриття, урок не зникає — зникає можливість його почути. У підвалі
+  гучно, голоси з сусідніх секторів накладаються, діти в дальньому кутку не чують нічого.
+  Просити вчителя говорити голосніше — не вихід: за годину голос сідає.
+</p>
+<p>
+  Ідея така сама, як у хмарного сервісу OpenedMic, але з однією принциповою відмінністю:
+  <strong>сервер стоїть тут же, в укритті</strong>. Немає інтернету, немає зв'язку, немає
+  світла в місті — звук усе одно є.
+</p>
+
+<h2 id="how"><span class="num">02</span>Як це працює</h2>
+<div class="diagram"><b>петличка</b> ──► [ сервер: Pi / ноутбук ] ──► [ Wi-Fi точка доступу ]
+               ffmpeg → MediaMTX            мережа "Ukryttia-279"
+               Opus, ~48 кбіт/с                     │
+                                       ┌───────────┼───────────┐
+                                      телефон    телефон    телефон
+                               http://10.0.0.1:8080/listen.html?ch=klas-5a</div>
+<p>
+  Мікрофон вмикається <strong>в сервер</strong>, а не в телефон учителя — браузери не дають
+  доступ до мікрофона на сторінках без HTTPS. Учителю власний телефон взагалі не потрібен.
+</p>
+<p>
+  Один голосовий канал — близько 48 кбіт/с. На 40 дітей виходить менше 2 Мбіт/с, тож вузьке
+  місце не швидкість, а кількість підключень до точки доступу.
+</p>
+
+<h2 id="hardware"><span class="num">03</span>Що потрібно</h2>
+<div class="tablewrap">
+<table>
+  <thead><tr><th>Що</th><th>Навіщо</th><th>Примітка</th></tr></thead>
+  <tbody>
+    <tr><td>Wi-Fi точка доступу</td><td>мережа для 30–40 телефонів</td><td>домашній роутер часто провисає після 20–30 клієнтів</td></tr>
+    <tr><td>Ноутбук або Raspberry Pi 4/5</td><td>сервер</td><td>ноутбук зручний власним акумулятором</td></tr>
+    <tr><td>USB-петличка або USB-звукова карта</td><td>вхід мікрофона</td><td>приймач бездротової петлички теж вмикається в USB</td></tr>
+    <tr><td>Павербанк або ДБЖ</td><td>живлення при відключеннях</td><td>Pi і точку доступу павербанк тягне довго</td></tr>
+    <tr><td>Навушники в дітей</td><td>—</td><td>кому не вистачило — саджаємо ближче до дошки</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="install"><span class="num">04</span>Встановлення на чистий Windows</h2>
+<p>
+  Інструкція для комп'ютера, на якому немає нічого, крім щойно встановленої Windows 10 або 11.
+  Ані Python, ані Node, ані Git ставити не доведеться. Разом — близько 20 хвилин, з яких
+  більшість припадає на завантаження.
+</p>
+<p>
+  <strong>Інтернет потрібен лише на час встановлення.</strong> Під час уроку ані сервер,
+  ані телефони в ньому не потребують.
+</p>
+
+<ol class="steps">
+
+<li>
+<h3>Покласти проєкт на комп'ютер</h3>
+<p>
+  На сторінці проєкту в GitHub: зелена кнопка <strong>Code</strong> →
+  <strong>Download ZIP</strong>. Розпакувати, наприклад, у <code>C:\lessonsinshelter</code>.
+</p>
+</li>
+
+<li>
+<h3>Дозволити запуск скриптів</h3>
+<p>
+  Windows не запускає скрипти PowerShell за замовчуванням, а файли з інтернету позначає як
+  небезпечні. Відкрийте <strong>PowerShell</strong> («Пуск» → наберіть <code>powershell</code>):
+</p>
+<pre><code>cd C:\lessonsinshelter
+Get-ChildItem -Recurse | Unblock-File
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned</code></pre>
+<p>На запит підтвердження — <code>Y</code> і Enter. Робиться один раз.</p>
+</li>
+
+<li>
+<h3>Завантажити дві програми</h3>
+<pre><code>.\server\win\download-tools.ps1</code></pre>
+<p>
+  Скрипт сам завантажить <code>mediamtx.exe</code> (медіасервер) і <code>ffmpeg.exe</code>
+  (робота зі звуком) у папку <code>server\bin</code>. Разом близько 140 МБ.
+</p>
+</li>
+
+<li>
+<h3>Дізнатися назву мікрофона</h3>
+<p>Увімкніть петличку в USB і виконайте:</p>
+<pre><code>.\server\win\list-devices.ps1</code></pre>
+<p>
+  Знайдіть свій мікрофон і скопіюйте назву <strong>цілком, разом із дужками</strong> —
+  наприклад <code>Мікрофон (USB Audio Device)</code>.
+</p>
+</li>
+
+<li>
+<h3>Відкрити порти у фаєрволі</h3>
+<p>
+  Потрібен PowerShell <strong>від імені адміністратора</strong>: «Пуск» → правою кнопкою по
+  <strong>Windows PowerShell</strong> → «Запуск від імені адміністратора».
+</p>
+<pre><code>cd C:\lessonsinshelter
+.\server\win\allow-firewall.ps1</code></pre>
+<p>
+  Робиться один раз. Без цього телефони не побачать сервер, навіть підключені до того ж Wi-Fi.
+</p>
+</li>
+
+<li>
+<h3>Запустити сервер</h3>
+<pre><code>.\server\win\start-server.ps1</code></pre>
+<p>
+  Скрипт надрукує адреси, за якими телефони відкриють сторінку.
+  <strong>Це вікно має лишатися відкритим.</strong>
+</p>
+</li>
+
+<li>
+<h3>Увімкнути мікрофон</h3>
+<p>Відкрийте <strong>друге</strong> вікно PowerShell, перше не чіпайте:</p>
+<pre><code>cd C:\lessonsinshelter
+.\server\win\start-mic.ps1 -Device "Мікрофон (USB Audio Device)" -Channel klas-5a -Slow</code></pre>
+<p>Ключ <code>-Slow</code> вмикає резервний потік для айфонів — лишайте його завжди.</p>
+</li>
+
+</ol>
+
+<div class="note">
+  <b>Перевірка перед першим уроком</b>
+  Спершу відкрийте адресу на самому комп'ютері — якщо тут не працює, справа не в телефонах.
+  Потім на одному Android і обов'язково на одному iPhone. І тільки тоді — на цілому класі.
+</div>
+
+<h2 id="daily"><span class="num">05</span>Щоденний запуск</h2>
+<p>Після встановлення потрібні лише два вікна PowerShell:</p>
+<pre><code><span class="c"># вікно 1 — сервер і сторінка</span>
+cd C:\lessonsinshelter
+.\server\win\start-server.ps1
+
+<span class="c"># вікно 2 — мікрофон</span>
+cd C:\lessonsinshelter
+.\server\win\start-mic.ps1 -Device "Мікрофон (USB Audio Device)" -Channel klas-5a -Slow</code></pre>
+<p>Обидва вікна мають лишатися відкритими до кінця уроку.</p>
+
+<h2 id="phones"><span class="num">06</span>Як підключаються діти</h2>
+<ol>
+  <li>Телефон підключається до тієї самої Wi-Fi мережі, що й сервер.</li>
+  <li>У браузері відкриває адресу, яку надрукував сервер — наприклад <code>http://192.168.0.50:8080/</code></li>
+  <li>Обирає свій клас у списку.</li>
+  <li>Натискає велику кнопку <strong>Слухати</strong>.</li>
+</ol>
+<p>
+  Нічого встановлювати, реєструватись і вводити паролі не потрібно. Щоб не диктувати адресу
+  кожному, роздрукуйте <code>web/print.html</code> і повісьте аркуш на стіну.
+</p>
+
+<h2 id="teacher"><span class="num">07</span>Що знати вчителю</h2>
+
+<h3>Мікрофон чує вас, а не клас</h3>
+<p>
+  Питання з місця сусіди почують так само, як завжди, — а от у навушниках його майже не буде.
+  Якщо питання важливе, коротко повторіть його вголос, перш ніж відповідати. Це та сама
+  звичка, що й на будь-якій конференції з мікрофоном.
+</p>
+
+<h3>Петличка — на долоню нижче підборіддя</h3>
+<p>
+  Система сама вирівнює гучність: якщо ви на мить відвернулись або підвищили голос,
+  у навушниках це залишиться рівним.
+</p>
+
+<h3>Телефон може «загубити» мережу</h3>
+<p>
+  Android іноді сам перемикається на мобільний інтернет, бо в нашій мережі інтернету немає.
+  Дитині треба один раз обрати «Залишатися підключеним».
+</p>
+
+<h3>Екран краще не гасити</h3>
+<p>
+  На частині телефонів, особливо на айфонах, звук може зупинитись після блокування екрана.
+  Сторінка сама просить екран не вимикати.
+</p>
+
+<h3>Айфони капризніші</h3>
+<p>
+  Safari суворіший до сторінок без HTTPS. Якщо на айфоні тиша — на сторінці є кнопка
+  <strong>«Спробувати повільний режим»</strong>. Звук піде, але з відставанням у кілька
+  секунд, тож дитині краще дивитись у зошит, а не на губи вчителя.
+</p>
+
+<h2 id="classes"><span class="num">08</span>Кілька класів одночасно</h2>
+<p>
+  В одному укритті можуть паралельно йти кілька уроків — кожен клас має власний канал і
+  власний мікрофон. Список редагується у файлі <code>web/channels.json</code>:
+</p>
+<pre><code>{ "id": "klas-5a", "name": "5-А", "room": "Сектор 1", "color": "#e0b341" }</code></pre>
+<p>Для кожного каналу запускається свій <code>start-mic</code> зі своїм мікрофоном.</p>
+<div class="note">
+  <b>Рознесіть класи по кутах</b>
+  Якщо два сектори поруч, дитина може випадково обрати сусідній урок і слухати чужу тему,
+  не розуміючи, чому нічого не сходиться.
+</div>
+
+<h2 id="trouble"><span class="num">09</span>Якщо щось не працює</h2>
+<div class="tablewrap">
+<table>
+  <thead><tr><th>Ознака</th><th>Причина і що робити</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>Сторінка пише «Server is up and running» або щось чуже</td>
+      <td>
+        Порт 8080 зайнятий іншою програмою (pgAdmin, Jenkins). Запустіть на іншому порту:
+        <code>allow-firewall.ps1 -WebPort 8081</code> від адміністратора, потім
+        <code>start-server.ps1 -WebPort 8081</code>, і давайте телефонам адресу з <code>:8081</code>
+      </td>
+    </tr>
+    <tr><td>«Немає зв'язку з сервером» на телефоні</td><td>Телефон у чужій мережі, або не виконано крок 5</td></tr>
+    <tr><td>Сторінка відкривається, але звуку немає</td><td>Правила фаєрвола не застосувались: сторінка йде по 8080, а звук по 8189/udp. Перезапустіть крок 5 саме від адміністратора</td></tr>
+    <tr><td><code>Could not find audio only device</code></td><td>Назва мікрофона скопійована не цілком — візьміть її разом із дужками</td></tr>
+    <tr><td>«Виконання сценаріїв вимкнено»</td><td>Не зроблено крок 2</td></tr>
+    <tr><td>На iPhone тиша</td><td>Натисніть «Спробувати повільний режим». Перші кілька секунд він мовчить, поки сервер готує потік</td></tr>
+    <tr><td>Після 20–30 телефонів усе заїкається</td><td>Роутер не тягне стільки клієнтів — потрібна точка доступу офісного класу</td></tr>
+    <tr><td>Звук зник посеред уроку</td><td>Зазвичай досить перезавантажити сторінку на телефоні</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="pi"><span class="num">10</span>Raspberry Pi як постійна коробка</h2>
+<pre><code>./server/linux/install.sh                        <span class="c"># один раз, поки ще є інтернет</span>
+./server/linux/start-server.sh                   <span class="c"># медіасервер + сторінка</span>
+SLOW=1 ./server/linux/start-mic.sh plughw:1,0 klas-5a</code></pre>
+<p>Щоб усе піднімалось саме при ввімкненні живлення:</p>
+<pre><code>sudo cp server/linux/systemd/*.service /etc/systemd/system/
+sudo systemctl enable --now lessons-server lessons-web lessons-mic@klas-5a</code></pre>
+
+<div class="note warn">
+  <b>Що ще не перевірено наживо</b>
+  Увесь тракт прогнано на машині розробки: сервер приймає звук, віддає його по WebRTC,
+  резервний HLS-потік для Safari теж віддається. Не перевірено відтворення в реальному
+  браузері телефона — це перший пункт пілотного тесту, і починати треба саме з айфона.
+</div>
+
+<footer>
+  Сторінка для дітей написана на чистому HTML, CSS і JS — жодних CDN, Tailwind чи зовнішніх
+  шрифтів: усе, що вантажиться ззовні, в укритті без інтернету просто не завантажиться.
+  Ця сторінка зроблена за тим самим правилом.
+</footer>
+
+</div>
+</body>
+</html>

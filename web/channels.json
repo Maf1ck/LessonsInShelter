@@ -1,0 +1,18 @@
+{
+  "site": "Ліцей Нових Технологій Навчання",
+  "subtitle": "Звук уроку в укритті",
+  "webrtcPort": 8889,
+  "hlsPort": 8888,
+  "channels": [
+    { "id": "klas-5-1", "name": "5-1", "room": "Сектор 1", "color": "#e0b341" },
+    { "id": "klas-5-2", "name": "5-2", "room": "Сектор 2", "color": "#5fc9a0" },
+    { "id": "klas-6", "name": "6", "room": "Сектор 3", "color": "#d98a6a" },
+    { "id": "klas-7-1", "name": "7-1", "room": "Сектор 4", "color": "#e0b341" },
+    { "id": "klas-7-2", "name": "7-2", "room": "Сектор 5", "color": "#5fc9a0" },
+    { "id": "klas-8", "name": "8", "room": "Сектор 6", "color": "#d98a6a" },
+    { "id": "klas-9-1", "name": "9-1", "room": "Сектор 7", "color": "#e0b341" },
+    { "id": "klas-9-2", "name": "9-2", "room": "Сектор 8", "color": "#5fc9a0" },
+    { "id": "klas-10", "name": "10", "room": "Сектор 9", "color": "#5fc9a0" },
+    { "id": "klas-11", "name": "11", "room": "Сектор 10", "color": "#d98a6a" }
+  ]
+}
