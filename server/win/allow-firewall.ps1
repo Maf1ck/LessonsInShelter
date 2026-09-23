@@ -29,12 +29,20 @@ if (-not $admin) {
   exit 1
 }
 
+if ($Remove) {
+  # Прибираємо за префіксом, а не за списком: правило для сторінки могло бути
+  # створене з іншим -WebPort, і за точною назвою воно б не знайшлось.
+  $mine = Get-NetFirewallRule -DisplayName "Lessons in Shelter*" -ErrorAction SilentlyContinue
+  if (-not $mine) { Write-Host "Правил цього проєкту не знайдено." -ForegroundColor DarkGray }
+  foreach ($m in $mine) {
+    Remove-NetFirewallRule -DisplayName $m.DisplayName
+    Write-Host "Прибрано: $($m.DisplayName)" -ForegroundColor DarkGray
+  }
+  exit 0
+}
+
 foreach ($r in $rules) {
   $existing = Get-NetFirewallRule -DisplayName $r.Name -ErrorAction SilentlyContinue
-  if ($Remove) {
-    if ($existing) { $existing | Remove-NetFirewallRule; Write-Host "Прибрано: $($r.Name)" -ForegroundColor DarkGray }
-    continue
-  }
   if ($existing) {
     Write-Host "Вже є: $($r.Name)" -ForegroundColor DarkGray
     continue
@@ -45,8 +53,6 @@ foreach ($r in $rules) {
   Write-Host "Відкрито: $($r.Name)" -ForegroundColor Green
 }
 
-if (-not $Remove) {
-  Write-Host ""
-  Write-Host "Мережа, до якої підключені телефони, має бути позначена як «приватна»." -ForegroundColor Yellow
-  Write-Host "Перевірити: Get-NetConnectionProfile" -ForegroundColor DarkGray
-}
+Write-Host ""
+Write-Host "Мережа, до якої підключені телефони, має бути позначена як «приватна»." -ForegroundColor Yellow
+Write-Host "Перевірити: Get-NetConnectionProfile" -ForegroundColor DarkGray

@@ -181,7 +181,7 @@ footer {
                Opus, ~48 кбіт/с                     │
                                        ┌───────────┼───────────┐
                                       телефон    телефон    телефон
-                               http://10.0.0.1:8080/listen.html?ch=klas-5a</div>
+                               http://10.0.0.1:8080/listen.html?ch=klas-5-1</div>
 <p>
   Мікрофон вмикається <strong>в сервер</strong>, а не в телефон учителя — браузери не дають
   доступ до мікрофона на сторінках без HTTPS. Учителю власний телефон взагалі не потрібен.
@@ -277,13 +277,18 @@ Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned</code></pre
   Скрипт надрукує адреси, за якими телефони відкриють сторінку.
   <strong>Це вікно має лишатися відкритим.</strong>
 </p>
+<p>
+  Якщо Python на комп'ютері немає — а на чистій Windows його немає — сторінку роздає вбудований
+  вебсервер Windows, і тоді це вікно теж має бути відкрите <strong>від імені адміністратора</strong>.
+  Скрипт сам про це скаже і зупиниться, якщо прав не вистачає.
+</p>
 </li>
 
 <li>
 <h3>Увімкнути мікрофон</h3>
 <p>Відкрийте <strong>друге</strong> вікно PowerShell, перше не чіпайте:</p>
 <pre><code>cd C:\lessonsinshelter
-.\server\win\start-mic.ps1 -Device "Мікрофон (USB Audio Device)" -Channel klas-5a -Slow</code></pre>
+.\server\win\start-mic.ps1 -Device "Мікрофон (USB Audio Device)" -Channel klas-5-1 -Slow</code></pre>
 <p>Ключ <code>-Slow</code> вмикає резервний потік для айфонів — лишайте його завжди.</p>
 </li>
 
@@ -303,7 +308,7 @@ cd C:\lessonsinshelter
 
 <span class="c"># вікно 2 — мікрофон</span>
 cd C:\lessonsinshelter
-.\server\win\start-mic.ps1 -Device "Мікрофон (USB Audio Device)" -Channel klas-5a -Slow</code></pre>
+.\server\win\start-mic.ps1 -Device "Мікрофон (USB Audio Device)" -Channel klas-5-1 -Slow</code></pre>
 <p>Обидва вікна мають лишатися відкритими до кінця уроку.</p>
 
 <h2 id="phones"><span class="num">06</span>Як підключаються діти</h2>
@@ -317,6 +322,12 @@ cd C:\lessonsinshelter
   Нічого встановлювати, реєструватись і вводити паролі не потрібно. Щоб не диктувати адресу
   кожному, роздрукуйте <code>web/print.html</code> і повісьте аркуш на стіну.
 </p>
+<p>
+  На сторінці класу внизу є <strong>пряме посилання саме на цей клас</strong> — з кнопкою
+  «Копіювати». Його можна кинути в чат класу, і дитина потрапить одразу на свій урок, минаючи
+  список. Виглядає воно так:
+</p>
+<pre><code>http://192.168.0.50:8080/listen.html?ch=klas-5-1</code></pre>
 
 <h2 id="teacher"><span class="num">07</span>Що знати вчителю</h2>
 
@@ -357,7 +368,7 @@ cd C:\lessonsinshelter
   В одному укритті можуть паралельно йти кілька уроків — кожен клас має власний канал і
   власний мікрофон. Список редагується у файлі <code>web/channels.json</code>:
 </p>
-<pre><code>{ "id": "klas-5a", "name": "5-А", "room": "Сектор 1", "color": "#e0b341" }</code></pre>
+<pre><code>{ "id": "klas-5-1", "name": "5-1", "room": "Сектор 1", "color": "#e0b341" }</code></pre>
 <p>Для кожного каналу запускається свій <code>start-mic</code> зі своїм мікрофоном.</p>
 <div class="note">
   <b>Рознесіть класи по кутах</b>
@@ -382,6 +393,8 @@ cd C:\lessonsinshelter
     <tr><td>Сторінка відкривається, але звуку немає</td><td>Правила фаєрвола не застосувались: сторінка йде по 8080, а звук по 8189/udp. Перезапустіть крок 5 саме від адміністратора</td></tr>
     <tr><td><code>Could not find audio only device</code></td><td>Назва мікрофона скопійована не цілком — візьміть її разом із дужками</td></tr>
     <tr><td>«Виконання сценаріїв вимкнено»</td><td>Не зроблено крок 2</td></tr>
+    <tr><td><code>Порт 8554 уже зайнятий: mediamtx</code></td><td>Медіасервер з попереднього запуску не закрився. Скрипт друкує готову команду з потрібним PID — виконайте її і запустіть знову</td></tr>
+    <tr><td>Телефон бачить Wi-Fi, але сторінка не відкривається</td><td>На точці доступу увімкнена ізоляція клієнтів (AP Isolation) — вони не бачать ні сервер, ні один одного. Найчастіше це гостьова мережа; використовуйте основну</td></tr>
     <tr><td>На iPhone тиша</td><td>Натисніть «Спробувати повільний режим». Перші кілька секунд він мовчить, поки сервер готує потік</td></tr>
     <tr><td>Після 20–30 телефонів усе заїкається</td><td>Роутер не тягне стільки клієнтів — потрібна точка доступу офісного класу</td></tr>
     <tr><td>Звук зник посеред уроку</td><td>Зазвичай досить перезавантажити сторінку на телефоні</td></tr>
@@ -392,10 +405,10 @@ cd C:\lessonsinshelter
 <h2 id="pi"><span class="num">10</span>Raspberry Pi як постійна коробка</h2>
 <pre><code>./server/linux/install.sh                        <span class="c"># один раз, поки ще є інтернет</span>
 ./server/linux/start-server.sh                   <span class="c"># медіасервер + сторінка</span>
-SLOW=1 ./server/linux/start-mic.sh plughw:1,0 klas-5a</code></pre>
+SLOW=1 ./server/linux/start-mic.sh plughw:1,0 klas-5-1</code></pre>
 <p>Щоб усе піднімалось саме при ввімкненні живлення:</p>
 <pre><code>sudo cp server/linux/systemd/*.service /etc/systemd/system/
-sudo systemctl enable --now lessons-server lessons-web lessons-mic@klas-5a</code></pre>
+sudo systemctl enable --now lessons-server lessons-web lessons-mic@klas-5-1</code></pre>
 
 <div class="note warn">
   <b>Що ще не перевірено наживо</b>

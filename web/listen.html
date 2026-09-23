@@ -34,6 +34,14 @@
     <button id="fallbackBtn" hidden>Спробувати повільний режим</button>
   </div>
 
+  <div class="share" id="share" hidden>
+    <div class="share-label">Пряме посилання на цей клас</div>
+    <div class="share-row">
+      <input type="text" id="shareUrl" readonly>
+      <button type="button" id="copyBtn">Копіювати</button>
+    </div>
+  </div>
+
   <div class="hint">
     <b>Якщо звуку немає</b>
     <ul>
@@ -158,6 +166,43 @@
         setState('error', 'Резервний режим теж недоступний');
       }
     });
+  }
+
+  /* ---- пряме посилання на цей клас ---- */
+  var shareBox = document.getElementById('share');
+  var shareInput = document.getElementById('shareUrl');
+  var copyBtn = document.getElementById('copyBtn');
+
+  if (chId) {
+    shareInput.value = location.origin + location.pathname + '?ch=' + encodeURIComponent(chId);
+    shareBox.hidden = false;
+  }
+
+  copyBtn.addEventListener('click', function () {
+    // navigator.clipboard працює лише на HTTPS, а сторінка роздається по HTTP,
+    // тому основний спосіб - стара команда копіювання виділеного тексту.
+    shareInput.focus();
+    shareInput.setSelectionRange(0, shareInput.value.length);
+    var copied = false;
+    try { copied = document.execCommand('copy'); } catch (e) { copied = false; }
+
+    if (copied) { flashCopied(); return; }
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(shareInput.value).then(flashCopied, showManual);
+      return;
+    }
+    showManual();
+  });
+
+  function flashCopied() {
+    copyBtn.textContent = 'Скопійовано';
+    setTimeout(function () { copyBtn.textContent = 'Копіювати'; }, 1600);
+  }
+
+  function showManual() {
+    // Якщо телефон не дав скопіювати - хоча б лишаємо адресу виділеною.
+    copyBtn.textContent = 'Скопіюй вручну';
+    setTimeout(function () { copyBtn.textContent = 'Копіювати'; }, 2200);
   }
 
   /* ---- індикатор рівня ---- */

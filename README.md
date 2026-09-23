@@ -13,7 +13,7 @@
                    Opus, ~48 кбіт/с                     │
                                            ┌───────────┼───────────┐
                                           📱🎧         📱🎧        📱🎧
-                                   http://10.0.0.1:8080/listen.html?ch=klas-5a
+                                   http://10.0.0.1:8080/listen.html?ch=klas-5-1
 ```
 
 Затримка — приблизно 0.2 секунди, тобто голос у навушниках збігається з тим, що дитина чує
@@ -55,7 +55,7 @@
    ```
 5. В іншому вікні PowerShell запустити мікрофон:
    ```powershell
-   .\server\win\start-mic.ps1 -Device "Мікрофон (USB Audio Device)" -Channel klas-5a
+   .\server\win\start-mic.ps1 -Device "Мікрофон (USB Audio Device)" -Channel klas-5-1
    ```
    Додайте `-Slow`, щоб поруч ішов резервний AAC-потік для iPhone (див. нижче).
 6. На телефоні відкрити `http://<IP-ноутбука>:8080/` — IP скрипт показує сам при старті.
@@ -66,8 +66,8 @@
 ```bash
 ./server/linux/install.sh              # один раз, поки ще є інтернет
 ./server/linux/start-server.sh         # медіасервер + сторінка
-./server/linux/start-mic.sh plughw:1,0 klas-5a   # в іншому терміналі
-SLOW=1 ./server/linux/start-mic.sh plughw:1,0 klas-5a   # плюс резервний потік для iPhone
+./server/linux/start-mic.sh plughw:1,0 klas-5-1   # в іншому терміналі
+SLOW=1 ./server/linux/start-mic.sh plughw:1,0 klas-5-1   # плюс резервний потік для iPhone
 ```
 
 Щоб усе піднімалось саме при ввімкненні живлення, скопіюйте проєкт у `/opt/lessonsinshelter`
@@ -75,7 +75,7 @@ SLOW=1 ./server/linux/start-mic.sh plughw:1,0 klas-5a   # плюс резерв�
 
 ```bash
 sudo cp server/linux/systemd/*.service /etc/systemd/system/
-sudo systemctl enable --now lessons-server lessons-web lessons-mic@klas-5a
+sudo systemctl enable --now lessons-server lessons-web lessons-mic@klas-5-1
 ```
 
 ## Документація
@@ -94,7 +94,7 @@ sudo systemctl enable --now lessons-server lessons-web lessons-mic@klas-5a
 канал зі своїм мікрофоном, тож в одному укритті можуть одночасно йти кілька уроків:
 
 ```json
-{ "id": "klas-5a", "name": "5-А", "room": "Сектор 1", "color": "#e0b341" }
+{ "id": "klas-5-1", "name": "5-1", "room": "Сектор 1", "color": "#e0b341" }
 ```
 
 Для кожного каналу запускається свій `start-mic` з власним мікрофоном.

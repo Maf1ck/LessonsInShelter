@@ -7,7 +7,7 @@
  */
 
 function WhepPlayer(opts) {
-  this.url = opts.url;                 // http://10.0.0.1:8889/klas-5a/whep
+  this.url = opts.url;                 // http://10.0.0.1:8889/klas-5-1/whep
   this.audio = opts.audio;             // <audio> елемент
   this.onState = opts.onState || function () {};
   this.pc = null;

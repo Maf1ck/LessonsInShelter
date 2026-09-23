@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 # Публікує звук петличного мікрофона в канал класу.
 #
-#   ./start-mic.sh plughw:1,0 klas-5a          основний потік (WebRTC, Opus)
-#   SLOW=1 ./start-mic.sh plughw:1,0 klas-5a   плюс резервний AAC-потік для HLS
+#   ./start-mic.sh plughw:1,0 klas-5-1          основний потік (WebRTC, Opus)
+#   SLOW=1 ./start-mic.sh plughw:1,0 klas-5-1   плюс резервний AAC-потік для HLS
 #
 # Список входів: arecord -l
 
 set -euo pipefail
 
 DEVICE="${1:-plughw:1,0}"
-CHANNEL="${2:-klas-5a}"
+CHANNEL="${2:-klas-5-1}"
 BITRATE="${BITRATE:-48}"
 SERVER="${SERVER:-127.0.0.1}"
 

@@ -1,5 +1,5 @@
 [Unit]
-# Один екземпляр на клас:  systemctl start lessons-mic@klas-5a
+# Один екземпляр на клас:  systemctl start lessons-mic@klas-5-1
 # Пристрій задається у /etc/default/lessons-mic, напр.:  DEVICE=plughw:1,0
 Description=Lessons in shelter — мікрофон каналу %i
 After=lessons-server.service

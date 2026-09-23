@@ -16,7 +16,10 @@ param([string]$MediaMtxVersion = "v1.9.3")
 $ErrorActionPreference = "Stop"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-$bin  = (Resolve-Path (Join-Path $PSScriptRoot "..\bin")).Path
+# Папки може не бути, якщо проєкт розпакували без порожніх каталогів.
+$bin  = Join-Path $PSScriptRoot "..\bin"
+New-Item -ItemType Directory -Force -Path $bin | Out-Null
+$bin  = (Resolve-Path $bin).Path
 $temp = Join-Path $env:TEMP ("lessons-tools-" + [Guid]::NewGuid().ToString("N").Substring(0, 8))
 New-Item -ItemType Directory -Force -Path $temp | Out-Null
 

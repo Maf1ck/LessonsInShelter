@@ -31,4 +31,4 @@ echo
 echo "Готово. Аудіовходи системи:"
 arecord -l || true
 echo
-echo "Далі: ./start-server.sh  і в іншому терміналі  ./start-mic.sh plughw:1,0 klas-5a"
+echo "Далі: ./start-server.sh  і в іншому терміналі  ./start-mic.sh plughw:1,0 klas-5-1"
