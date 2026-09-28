@@ -223,3 +223,12 @@ header h1 {
   /* В укритті зазвичай темно, тож світла тема лише пом'якшує контраст. */
   :root { --bg: #0f1216; }
 }
+
+/* ---------- підпис розробника ---------- */
+.dev {
+  margin: 28px 0 8px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--muted);
+}
+.dev img { display: block; width: 160px; height: auto; opacity: .9; }
+.dev a { color: #c3ff70; text-decoration: none; }

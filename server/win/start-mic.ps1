@@ -18,6 +18,7 @@ param(
 )
 
 . (Join-Path $PSScriptRoot "lib.ps1")
+Show-Banner
 
 $ffmpeg = Join-Path $PSScriptRoot "..\bin\ffmpeg.exe"
 if (-not (Test-Path $ffmpeg)) { $ffmpeg = "ffmpeg" }
@@ -35,6 +36,8 @@ if ($info) {
   # Друкарська помилка в назві каналу інакше помітна лише посеред уроку.
   Write-Host "  Каналу '$Channel' немає у web\channels.json." -ForegroundColor Yellow
   Write-Host "  У списку на телефоні він не з'явиться - тільки за прямим посиланням." -ForegroundColor Yellow
+  Write-Host ""
+  Show-Channels
 }
 Write-Host "  Мікрофон: $Device"
 Write-Host "  Канал:    $Channel"

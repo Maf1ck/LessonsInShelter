@@ -9,6 +9,7 @@
 param([int]$WebPort = 8080)
 
 . (Join-Path $PSScriptRoot "lib.ps1")
+Show-Banner
 
 $root     = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 $web      = Join-Path $root "web"
@@ -89,6 +90,8 @@ if ($addresses.Count -eq 0) {
 } else {
   foreach ($ip in $addresses) { Write-Host ("   http://{0}:{1}/" -f $ip, $WebPort) -ForegroundColor Cyan }
 }
+Write-Host ""
+Show-Channels
 Write-Host "Зупинити - Ctrl+C" -ForegroundColor DarkGray
 Write-Host ""
 

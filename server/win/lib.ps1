@@ -40,12 +40,55 @@ function Get-ServerAddresses {
 function Get-ChannelInfo {
   param([string]$Channel)
 
+  Get-Channels | Where-Object { $_.id -eq $Channel } | Select-Object -First 1
+}
+
+# Усі канали з web/channels.json; порожньо, якщо файлу немає або він зламаний.
+function Get-Channels {
   $file = Join-Path $PSScriptRoot "..\..\web\channels.json"
-  if (-not (Test-Path $file)) { return $null }
+  if (-not (Test-Path $file)) { return @() }
   try {
     $cfg = Get-Content $file -Raw -Encoding UTF8 | ConvertFrom-Json
   } catch {
-    return $null
+    return @()
   }
-  $cfg.channels | Where-Object { $_.id -eq $Channel } | Select-Object -First 1
+  @($cfg.channels)
+}
+
+<#
+  Друкує таблицю класів: назва, сектор і код для start-mic.ps1 -Channel.
+  Щоб код класу не доводилось шукати у channels.json.
+#>
+function Show-Channels {
+  $channels = @(Get-Channels)
+  if ($channels.Count -eq 0) {
+    Write-Host "  Список класів порожній - перевірте web\channels.json" -ForegroundColor Yellow
+    return
+  }
+  Write-Host "  Класи (код підставляється у start-mic.ps1 -Channel ...):" -ForegroundColor Green
+  foreach ($ch in $channels) {
+    Write-Host ("     {0,-6} {1,-12}" -f $ch.name, $ch.room) -NoNewline
+    Write-Host $ch.id -ForegroundColor Cyan
+  }
+}
+
+# Логотип і контакт розробника на початку кожного скрипта.
+function Show-Banner {
+  $logo = @(
+    "                       ▄███▄ ▄██         ██     ",
+    "                       ██     ██         ██     ",
+    "  ▄████████▄ ▄██████▄ █████   ██ ▄██████ ██  ▄██",
+    "  ██  ██  ██  ▄▄▄▄▄██  ██     ██ ██      ██▄██▀ ",
+    "  ██  ██  ██ ██▀▀▀▀██  ██     ██ ██      ██▀██▄ ",
+    "  ▀▀  ▀▀  ▀▀ ▀███████  ▀▀     ▀▀ ▀██████ ▀▀  ▀▀▀"
+  )
+  Write-Host ""
+  foreach ($line in $logo) { Write-Host $line -ForegroundColor White }
+  Write-Host "                   p r o j e c t s" -ForegroundColor Green
+  Write-Host ""
+  Write-Host "  Lessons in Shelter - звук уроку в укритті" -ForegroundColor Gray
+  Write-Host "  Розробник: maf1ck   Telegram: " -NoNewline -ForegroundColor Gray
+  Write-Host "@zxcmaf1ck" -NoNewline -ForegroundColor Green
+  Write-Host "  (https://t.me/zxcmaf1ck)" -ForegroundColor DarkGray
+  Write-Host ""
 }

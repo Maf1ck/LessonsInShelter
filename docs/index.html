@@ -147,6 +147,10 @@ footer {
   color: var(--muted); font-size: 14.5px;
 }
 
+.dev { margin-top: 28px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.dev img { display: block; width: 180px; height: auto; }
+.dev a { color: #c3ff70; text-decoration: none; }
+
 @media (max-width: 620px) {
   header.hero { padding: 40px 0 28px; }
   h1 { font-size: 30px; }
@@ -542,6 +546,10 @@ sudo systemctl enable --now lessons-server lessons-web lessons-mic@klas-5-1</cod
   Сторінка для дітей написана на чистому HTML, CSS і JS — жодних CDN, Tailwind чи зовнішніх
   шрифтів: усе, що вантажиться ззовні, в укритті без інтернету просто не завантажиться.
   Ця сторінка зроблена за тим самим правилом.
+  <div class="dev">
+    <img src="maf1ck.png" alt="maf1ck projects" width="180" height="74">
+    <span>Розробник — <a href="https://t.me/zxcmaf1ck">@zxcmaf1ck</a> у Telegram</span>
+  </div>
 </footer>
 
 </div>
