@@ -113,6 +113,33 @@ tbody tr:last-child td { border-bottom: none; }
   display: flex; align-items: center; justify-content: center;
 }
 .steps h3 { margin-top: 0; }
+.steps > li > ol { padding-left: 20px; }
+
+/* ---------- для новачків: результат кроку, підказка, клавіші ---------- */
+.ok, .fix {
+  font-size: 15.5px; padding: 10px 14px; border-radius: 10px; margin: 12px 0;
+  background: var(--surface);
+}
+.ok { border: 1px solid #3f6b52; }
+.ok::before { content: "✓ Вийшло, якщо: "; color: #6fd39a; font-weight: 650; }
+.fix { border: 1px solid #6b4040; }
+.fix::before { content: "✗ Якщо ні: "; color: var(--err); font-weight: 650; }
+.okword { color: #6fd39a; font-weight: 650; }
+kbd {
+  font-family: var(--mono); font-size: .85em;
+  background: var(--surface-2); border: 1px solid var(--border); border-bottom-width: 2px;
+  border-radius: 5px; padding: 1px 6px; white-space: nowrap;
+}
+.skills { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 14px 0 8px; }
+.skill {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  padding: 14px 16px; font-size: 15.5px;
+}
+.skill b { display: block; margin-bottom: 4px; }
+.part {
+  margin: 36px 0 18px; font-size: 13px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--accent); font-weight: 650; border-bottom: 1px solid var(--border); padding-bottom: 8px;
+}
 
 footer {
   margin-top: 72px; padding-top: 24px;
@@ -126,6 +153,7 @@ footer {
   .lead { font-size: 18px; }
   h2 { font-size: 23px; margin-top: 44px; }
   nav.toc ol { columns: 1; }
+  .skills { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -153,7 +181,7 @@ footer {
       <li><a href="#how">Як це працює</a></li>
       <li><a href="#hardware">Що потрібно</a></li>
       <li><a href="#install">Встановлення</a></li>
-      <li><a href="#daily">Щоденний запуск</a></li>
+      <li><a href="#daily">Запуск перед уроком</a></li>
       <li><a href="#phones">Як підключаються діти</a></li>
       <li><a href="#teacher">Що знати вчителю</a></li>
       <li><a href="#classes">Кілька класів</a></li>
@@ -205,111 +233,204 @@ footer {
 </table>
 </div>
 
-<h2 id="install"><span class="num">04</span>Встановлення на чистий Windows</h2>
+<h2 id="install"><span class="num">04</span>Встановлення на Windows — з нуля</h2>
 <p>
-  Інструкція для комп'ютера, на якому немає нічого, крім щойно встановленої Windows 10 або 11.
-  Ані Python, ані Node, ані Git ставити не доведеться. Разом — близько 20 хвилин, з яких
-  більшість припадає на завантаження.
+  Інструкція для людини, яка <strong>ніколи не налаштовувала комп'ютер</strong>. Розписано
+  кожне натискання: куди клацнути, що вставити і що має з'явитися на екрані. Разом — близько
+  20 хвилин, робиться один раз.
 </p>
 <p>
-  <strong>Інтернет потрібен лише на час встановлення.</strong> Під час уроку ані сервер,
+  <strong>Інтернет потрібен лише на час встановлення.</strong> Під час уроку ані комп'ютер,
   ані телефони в ньому не потребують.
 </p>
+
+<div class="note">
+  <b>Як читати</b>
+  <strong>Жирним</strong> — кнопки й пункти меню. Темні блоки — команди: їх не набирають
+  вручну, а копіюють і вставляють. Після кожного кроку є «<span class="okword">Вийшло, якщо</span>» —
+  не йдіть далі, поки не побачите саме це.
+</div>
+
+<h3 id="skills">Три вміння, які знадобляться</h3>
+<div class="skills">
+  <div class="skill">
+    <b>1. Скопіювати команду</b>
+    Затисніть ліву кнопку миші на початку команди, протягніть до кінця, натисніть
+    <kbd>Ctrl</kbd> + <kbd>C</kbd>.
+  </div>
+  <div class="skill">
+    <b>2. Вставити і виконати</b>
+    Клацніть <strong>правою кнопкою</strong> всередині вікна PowerShell — команда вставиться.
+    Потім натисніть <kbd>Enter</kbd>.
+  </div>
+  <div class="skill">
+    <b>3. Дочекатися кінця</b>
+    Команда виконалась, коли знову з'явився рядок <code>PS C:\lessonsinshelter&gt;</code>
+    з блимаючим курсором. До того — чекайте.
+  </div>
+</div>
+
+<div class="part">Частина 1 · Встановлення · один раз</div>
 
 <ol class="steps">
 
 <li>
-<h3>Покласти проєкт на комп'ютер</h3>
-<p>
-  На сторінці проєкту в GitHub: зелена кнопка <strong>Code</strong> →
-  <strong>Download ZIP</strong>. Розпакувати, наприклад, у <code>C:\lessonsinshelter</code>.
-</p>
+<h3>Завантажити проєкт</h3>
+<ol>
+  <li>Відкрийте сторінку проєкту на GitHub у браузері.</li>
+  <li>Натисніть зелену кнопку <strong>&lt;&gt; Code</strong> над списком файлів.</li>
+  <li>У меню, що випало, натисніть <strong>Download ZIP</strong>.</li>
+</ol>
+<p class="ok">У папці <strong>Завантаження</strong> з'явився файл <code>lessonsinshelter-main.zip</code>.
+Відкрити цю папку: <kbd>Win</kbd> + <kbd>E</kbd> → ліворуч <strong>Завантаження</strong>.</p>
+</li>
+
+<li>
+<h3>Розпакувати в правильне місце</h3>
+<ol>
+  <li>Клацніть <strong>правою кнопкою</strong> по файлу <code>lessonsinshelter-main.zip</code> →
+    <strong>Видобути все...</strong></li>
+  <li>У полі зі шляхом зітріть усе і впишіть <code>C:\</code> → <strong>Видобути</strong>.</li>
+  <li>На диску <code>C:</code> знайдіть папку <strong>lessonsinshelter-main</strong>, клацніть
+    правою кнопкою → <strong>Перейменувати</strong> → зітріть <code>-main</code> → <kbd>Enter</kbd>.
+    Якщо Windows питає дозвіл — <strong>Продовжити</strong>.</li>
+</ol>
+<p class="ok">У папці <code>C:\lessonsinshelter</code> лежать папки <strong>docs</strong>,
+<strong>server</strong>, <strong>web</strong> і файл <strong>README.md</strong>.</p>
+<p class="fix">Якщо там ще одна папка <code>lessonsinshelter-main</code> — перенесіть її вміст
+на рівень вище (<kbd>Ctrl</kbd>+<kbd>A</kbd>, <kbd>Ctrl</kbd>+<kbd>X</kbd>, перейти вище,
+<kbd>Ctrl</kbd>+<kbd>V</kbd>).</p>
+</li>
+
+<li>
+<h3>Відкрити PowerShell від імені адміністратора</h3>
+<p>Усі команди вводяться сюди. Щоб не плутатись, <strong>завжди відкривайте його саме так</strong>.</p>
+<ol>
+  <li>Натисніть <strong>Пуск</strong> і, нічого не клацаючи, наберіть <code>powershell</code>.</li>
+  <li>Клацніть <strong>правою кнопкою</strong> по <strong>Windows PowerShell</strong> →
+    <strong>Запуск від імені адміністратора</strong>.</li>
+  <li>На питання «Дозволити цій програмі вносити зміни?» — <strong>Так</strong>.</li>
+  <li>Вставте й виконайте:</li>
+</ol>
+<pre><code>cd C:\lessonsinshelter</code></pre>
+<p class="ok">У заголовку вікна є слово <strong>Адміністратор</strong>, а рядок виглядає як
+<code>PS C:\lessonsinshelter&gt;</code>.</p>
+<p class="fix">«Не удается найти путь» — папка розпакована не туди. Поверніться до кроку 2.</p>
 </li>
 
 <li>
 <h3>Дозволити запуск скриптів</h3>
-<p>
-  Windows не запускає скрипти PowerShell за замовчуванням, а файли з інтернету позначає як
-  небезпечні. Відкрийте <strong>PowerShell</strong> («Пуск» → наберіть <code>powershell</code>):
-</p>
-<pre><code>cd C:\lessonsinshelter
-Get-ChildItem -Recurse | Unblock-File
-Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned</code></pre>
-<p>На запит підтвердження — <code>Y</code> і Enter. Робиться один раз.</p>
+<p>У тому самому вікні виконайте по черзі дві команди:</p>
+<pre><code>Get-ChildItem -Recurse | Unblock-File</code></pre>
+<pre><code>Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned</code></pre>
+<p>На питання «Ви впевнені?» надрукуйте <kbd>Y</kbd> і натисніть <kbd>Enter</kbd>.</p>
+<p class="ok">Знову з'явився рядок <code>PS C:\lessonsinshelter&gt;</code>, червоного тексту немає.</p>
 </li>
 
 <li>
 <h3>Завантажити дві програми</h3>
+<p>Потрібен інтернет. Скрипт сам завантажить MediaMTX і ffmpeg — близько 140 МБ, 2–10 хвилин.</p>
 <pre><code>.\server\win\download-tools.ps1</code></pre>
+<p class="ok">Зеленим написано <code>Готово: mediamtx.exe</code> і <code>Готово: ffmpeg.exe</code>.</p>
+<p class="fix">Помилка з'єднання — перевірте інтернет і запустіть ту саму команду ще раз.</p>
+</li>
+
+<li>
+<h3>Відкрити доступ для телефонів</h3>
+<p>Фаєрвол Windows не пускає до комп'ютера чужі пристрої. Робимо «дверцята» для нашої системи:</p>
+<pre><code>.\server\win\allow-firewall.ps1</code></pre>
+<p class="ok">Зеленим — чотири рядки, що починаються з <code>Відкрито:</code>.</p>
 <p>
-  Скрипт сам завантажить <code>mediamtx.exe</code> (медіасервер) і <code>ffmpeg.exe</code>
-  (робота зі звуком) у папку <code>server\bin</code>. Разом близько 140 МБ.
+  Далі підключіть комп'ютер до Wi-Fi для дітей і позначте мережу як приватну:
+  <strong>Пуск</strong> → <strong>Параметри</strong> → <strong>Мережа й Інтернет</strong> →
+  <strong>Властивості</strong> мережі → <strong>Профіль мережі: Приватна</strong>.
 </p>
 </li>
 
 <li>
 <h3>Дізнатися назву мікрофона</h3>
-<p>Увімкніть петличку в USB і виконайте:</p>
+<p>Вставте петличку в USB, зачекайте 10 секунд і виконайте:</p>
 <pre><code>.\server\win\list-devices.ps1</code></pre>
+<p>Знайдіть рядок, що закінчується на <code>(audio)</code>:</p>
+<pre><code>[dshow @ 0000020f] "Мікрофон (USB Audio Device)" (audio)</code></pre>
 <p>
-  Знайдіть свій мікрофон і скопіюйте назву <strong>цілком, разом із дужками</strong> —
-  наприклад <code>Мікрофон (USB Audio Device)</code>.
+  Назва — те, що <strong>між лапками</strong>. Запишіть її літера в літеру,
+  <strong>разом із дужками</strong>. Скопіювати з вікна: виділіть мишкою і натисніть
+  <kbd>Enter</kbd>.
 </p>
+<p class="fix">Кілька рядків з <code>(audio)</code> — беріть той, де є <strong>USB</strong>
+або назва петлички. «Realtek» — це вбудований мікрофон ноутбука.</p>
 </li>
 
-<li>
-<h3>Відкрити порти у фаєрволі</h3>
+</ol>
+
+<p><strong>Встановлення закінчено.</strong> Кроки 1–7 більше не потрібні — хіба що зміните
+мікрофон, тоді повторіть крок 7.</p>
+
+<h2 id="daily"><span class="num">05</span>Запуск перед уроком</h2>
 <p>
-  Потрібен PowerShell <strong>від імені адміністратора</strong>: «Пуск» → правою кнопкою по
-  <strong>Windows PowerShell</strong> → «Запуск від імені адміністратора».
+  Щоразу потрібні <strong>два вікна PowerShell</strong> одночасно: одне роздає сторінку і звук,
+  друге бере звук з мікрофона. <strong>Обидва не закривати до кінця уроку</strong> — лише згортати.
 </p>
+
+<div class="part">Частина 2 · Щоразу · ~2 хвилини</div>
+
+<ol class="steps" start="8" style="counter-reset: step 7">
+
+<li>
+<h3>Вікно 1 — сервер</h3>
+<ol>
+  <li>Підключіть комп'ютер до шкільного Wi-Fi.</li>
+  <li>Відкрийте PowerShell від імені адміністратора (як у кроці 3) і виконайте:</li>
+</ol>
 <pre><code>cd C:\lessonsinshelter
-.\server\win\allow-firewall.ps1</code></pre>
-<p>
-  Робиться один раз. Без цього телефони не побачать сервер, навіть підключені до того ж Wi-Fi.
-</p>
+.\server\win\start-server.ps1</code></pre>
+<p>Якщо вискочить «Брандмауер Windows заблокував деякі функції» — галочка
+<strong>Приватні мережі</strong> → <strong>Дозволити доступ</strong>.</p>
+<p class="ok">Зеленим <code>Медіасервер працює</code>, а нижче — адреса для дітей, наприклад
+<code>http://192.168.0.50:8080/</code>. Запишіть її. Рядок <code>PS&gt;</code> тут не з'являється — так і має бути.</p>
 </li>
 
 <li>
-<h3>Запустити сервер</h3>
-<pre><code>.\server\win\start-server.ps1</code></pre>
-<p>
-  Скрипт надрукує адреси, за якими телефони відкриють сторінку.
-  <strong>Це вікно має лишатися відкритим.</strong>
-</p>
-<p>
-  Якщо Python на комп'ютері немає — а на чистій Windows його немає — сторінку роздає вбудований
-  вебсервер Windows, і тоді це вікно теж має бути відкрите <strong>від імені адміністратора</strong>.
-  Скрипт сам про це скаже і зупиниться, якщо прав не вистачає.
-</p>
-</li>
-
-<li>
-<h3>Увімкнути мікрофон</h3>
-<p>Відкрийте <strong>друге</strong> вікно PowerShell, перше не чіпайте:</p>
+<h3>Вікно 2 — мікрофон</h3>
+<ol>
+  <li>Перше вікно не чіпайте. Відкрийте <strong>ще одне</strong> PowerShell від імені адміністратора.</li>
+  <li>Скопіюйте команду нижче спершу <strong>в Блокнот</strong>.</li>
+  <li>Замініть <code>Мікрофон (USB Audio Device)</code> на назву з кроку 7 (лапки лишаються),
+    а <code>klas-5-1</code> — на код свого класу.</li>
+  <li>Скопіюйте виправлене з Блокнота у вікно 2 і натисніть <kbd>Enter</kbd>.</li>
+</ol>
 <pre><code>cd C:\lessonsinshelter
 .\server\win\start-mic.ps1 -Device "Мікрофон (USB Audio Device)" -Channel klas-5-1 -Slow</code></pre>
-<p>Ключ <code>-Slow</code> вмикає резервний потік для айфонів — лишайте його завжди.</p>
+<p>
+  Коди класів: <code>klas-5-1</code>, <code>klas-5-2</code>, <code>klas-6</code>,
+  <code>klas-7-1</code>, <code>klas-7-2</code>, <code>klas-8</code>, <code>klas-9-1</code>,
+  <code>klas-9-2</code>, <code>klas-10</code>, <code>klas-11</code> (список — у
+  <code>web/channels.json</code>). <code>-Slow</code> не прибирайте: він потрібен для айфонів.
+</p>
+<p class="ok">Написано клас, мікрофон і пряме посилання на цей клас. Після цього вікно
+«застигає» — це нормально.</p>
+<p class="fix">Жовте «Каналу ... немає» — помилка в коді класу. <code>Could not find audio only device</code> —
+неточна назва мікрофона.</p>
+<p>Збережіть файл Блокнота на робочому столі як <code>мікрофон.txt</code> — завтра просто скопіюєте звідти.</p>
 </li>
 
 </ol>
 
 <div class="note">
-  <b>Перевірка перед першим уроком</b>
-  Спершу відкрийте адресу на самому комп'ютері — якщо тут не працює, справа не в телефонах.
-  Потім на одному Android і обов'язково на одному iPhone. І тільки тоді — на цілому класі.
+  <b>Перевірка перед першим уроком — за день, не при дітях</b>
+  1) Адреса на самому комп'ютері — має відкритися список класів.
+  2) Один Android: «Слухати», говоріть у петличку — чуєте себе в навушниках.
+  3) Обов'язково один iPhone; якщо тиша — «Спробувати повільний режим» і 5–10 секунд.
+  4) Тільки тоді — цілий клас.
 </div>
 
-<h2 id="daily"><span class="num">05</span>Щоденний запуск</h2>
-<p>Після встановлення потрібні лише два вікна PowerShell:</p>
-<pre><code><span class="c"># вікно 1 — сервер і сторінка</span>
-cd C:\lessonsinshelter
-.\server\win\start-server.ps1
-
-<span class="c"># вікно 2 — мікрофон</span>
-cd C:\lessonsinshelter
-.\server\win\start-mic.ps1 -Device "Мікрофон (USB Audio Device)" -Channel klas-5-1 -Slow</code></pre>
-<p>Обидва вікна мають лишатися відкритими до кінця уроку.</p>
+<h3>Як вимкнути</h3>
+<p>
+  У вікні 2, потім у вікні 1: клацнути всередину → <kbd>Ctrl</kbd> + <kbd>C</kbd> → закрити
+  вікно. Якщо закрити просто хрестиком, наступного разу може з'явитися «порт зайнятий» —
+  див. «Якщо щось не працює».
+</p>
 
 <h2 id="phones"><span class="num">06</span>Як підключаються діти</h2>
 <ol>
@@ -389,10 +510,10 @@ cd C:\lessonsinshelter
         <code>start-server.ps1 -WebPort 8081</code>, і давайте телефонам адресу з <code>:8081</code>
       </td>
     </tr>
-    <tr><td>«Немає зв'язку з сервером» на телефоні</td><td>Телефон у чужій мережі, або не виконано крок 5</td></tr>
-    <tr><td>Сторінка відкривається, але звуку немає</td><td>Правила фаєрвола не застосувались: сторінка йде по 8080, а звук по 8189/udp. Перезапустіть крок 5 саме від адміністратора</td></tr>
+    <tr><td>«Немає зв'язку з сервером» на телефоні</td><td>Телефон у чужій мережі, або не виконано крок 6, або мережа в Windows не позначена як приватна</td></tr>
+    <tr><td>Сторінка відкривається, але звуку немає</td><td>Правила фаєрвола не застосувались: сторінка йде по 8080, а звук по 8189/udp. Повторіть крок 6 у вікні адміністратора</td></tr>
     <tr><td><code>Could not find audio only device</code></td><td>Назва мікрофона скопійована не цілком — візьміть її разом із дужками</td></tr>
-    <tr><td>«Виконання сценаріїв вимкнено»</td><td>Не зроблено крок 2</td></tr>
+    <tr><td>«Виконання сценаріїв вимкнено»</td><td>Не зроблено крок 4</td></tr>
     <tr><td><code>Порт 8554 уже зайнятий: mediamtx</code></td><td>Медіасервер з попереднього запуску не закрився. Скрипт друкує готову команду з потрібним PID — виконайте її і запустіть знову</td></tr>
     <tr><td>Телефон бачить Wi-Fi, але сторінка не відкривається</td><td>На точці доступу увімкнена ізоляція клієнтів (AP Isolation) — вони не бачать ні сервер, ні один одного. Найчастіше це гостьова мережа; використовуйте основну</td></tr>
     <tr><td>На iPhone тиша</td><td>Натисніть «Спробувати повільний режим». Перші кілька секунд він мовчить, поки сервер готує потік</td></tr>

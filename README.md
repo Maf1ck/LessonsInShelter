@@ -83,8 +83,8 @@ sudo systemctl enable --now lessons-server lessons-web lessons-mic@klas-5-1
 - **[docs/index.html](docs/index.html) — уся документація однією сторінкою.** Відкривається
   подвійним кліком і працює без інтернету. Якщо увімкнути GitHub Pages з папки `/docs`,
   ця ж сторінка стає сайтом проєкту.
-- [docs/INSTALL-WINDOWS.md](docs/INSTALL-WINDOWS.md) — покрокове встановлення на чистий
-  Windows, де немає нічого, крім самої системи.
+- [docs/INSTALL-WINDOWS.md](docs/INSTALL-WINDOWS.md) — покрокове встановлення на чистий Windows для людини, яка вперше
+  налаштовує комп'ютер: що натискати і що має з'явитися на екрані.
 - [docs/for-teachers.md](docs/for-teachers.md) — опис для вчителя: що це, що робити на уроці,
   що казати дітям. Без технічних подробиць.
 
