@@ -56,8 +56,18 @@ foreach ($port in 8554, 8888, 8889) {
 # Якщо дати йому підвищувати права самому, він відкриє нове вікно, поточне
 # закриється, і блок finally забере медіасервер із собою - сторінка буде,
 # а звуку не буде взагалі.
-$python = Get-Command python -ErrorAction SilentlyContinue
-if (-not $python) { $python = Get-Command py -ErrorAction SilentlyContinue }
+#
+# На свіжій Windows "python" - це заглушка Microsoft Store (WindowsApps\python.exe):
+# Get-Command її знаходить, але вона лише друкує "Python" і одразу виходить.
+# Тоді finally гасив медіасервер одразу після старту. Тому перевіряємо, що
+# інтерпретатор справді запускається і має http.server.
+$python = $null
+foreach ($name in "python", "py", "python3") {
+  $cmd = Get-Command $name -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+  if (-not $cmd) { continue }
+  & $cmd.Source -c "import http.server" *> $null
+  if ($LASTEXITCODE -eq 0) { $python = $cmd; break }
+}
 
 if (-not $python) {
   $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()
@@ -98,6 +108,11 @@ Write-Host ""
 try {
   if ($python) {
     & $python.Source -m http.server $WebPort --directory $web
+    # Сюди доходимо лише тоді, коли вебсервер завершився сам, а не через Ctrl+C.
+    Write-Host ""
+    Write-Host "Вебсервер на Python несподівано завершився (код $LASTEXITCODE)." -ForegroundColor Red
+    Write-Host "Разом із ним зупиняється і медіасервер. Перевірте, що Python встановлено з python.org," -ForegroundColor Yellow
+    Write-Host "або запустіть PowerShell від імені адміністратора - тоді сторінку роздасть вбудований вебсервер." -ForegroundColor Yellow
   } else {
     # Запасний варіант на вбудованому HttpListener (потребує прав адміністратора).
     & (Join-Path $PSScriptRoot "static-server.ps1") -Port $WebPort
