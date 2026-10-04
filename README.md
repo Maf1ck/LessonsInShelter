@@ -36,29 +36,33 @@
 
 ### Windows (ноутбук учителя)
 
-1. Завантажити `mediamtx.exe` і `ffmpeg.exe` у [server/bin/](server/bin/):
+1. Дати тимчасовий дозвіл для запуску скриптів на одну сесію:
+   ```powershell
+   Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+   ```
+2. Завантажити `mediamtx.exe` і `ffmpeg.exe` у [server/bin/](server/bin/):
    ```powershell
    .\server\win\download-tools.ps1
    ```
-2. Дізнатися точну назву мікрофона:
+3. Дізнатися точну назву мікрофона:
    ```powershell
    .\server\win\list-devices.ps1
    ```
-3. Один раз відкрити порти у фаєрволі (PowerShell від імені адміністратора) — без цього
+4. Один раз відкрити порти у фаєрволі (PowerShell від імені адміністратора) — без цього
    телефони не побачать сервер:
    ```powershell
    .\server\win\allow-firewall.ps1
    ```
-4. Запустити сервер:
+5. Запустити сервер:
    ```powershell
    .\server\win\start-server.ps1
    ```
-5. В іншому вікні PowerShell запустити мікрофон:
+6. В іншому вікні PowerShell запустити мікрофон:
    ```powershell
    .\server\win\start-mic.ps1 -Device "Мікрофон (USB Audio Device)" -Channel klas-5-1
    ```
    Додайте `-Slow`, щоб поруч ішов резервний AAC-потік для iPhone (див. нижче).
-6. На телефоні відкрити `http://<IP-ноутбука>:8080/` — IP скрипт показує сам при старті.
+7. На телефоні відкрити `http://<IP-ноутбука>:8080/` — IP скрипт показує сам при старті.
    Телефон має бути в тій самій Wi-Fi мережі, що й ноутбук.
 
 ### Raspberry Pi (постійна «коробка»)
