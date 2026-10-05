@@ -1,22 +1,8 @@
-﻿<#
-  Качає дві програми, без яких проєкт не працює, і кладе їх у server\bin:
-    mediamtx.exe - медіасервер
-    ffmpeg.exe   - знімає звук з мікрофона
-
-  Запускати на комп'ютері, де ще є інтернет. Права адміністратора не потрібні.
-
-    .\download-tools.ps1
-
-  Версія MediaMTX закріплена навмисно: у новіших випусках частина ключів
-  конфігурації називається інакше, і server\mediamtx.yml перевірений саме на цій.
-#>
-
-param([string]$MediaMtxVersion = "v1.9.3")
+﻿param([string]$MediaMtxVersion = "v1.9.3")
 
 $ErrorActionPreference = "Stop"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-# Папки може не бути, якщо проєкт розпакували без порожніх каталогів.
 $bin  = Join-Path $PSScriptRoot "..\bin"
 New-Item -ItemType Directory -Force -Path $bin | Out-Null
 $bin  = (Resolve-Path $bin).Path
@@ -43,7 +29,6 @@ function Get-Tool {
   if (-not $found) { throw "В архіві $Url не знайшовся $ExeInside" }
 
   Copy-Item $found.FullName $target -Force
-  # Windows позначає завантажені файли як «з інтернету» і не дає їх запустити.
   Unblock-File $target
   Write-Host "Готово: $Name" -ForegroundColor Green
 }

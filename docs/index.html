@@ -7,7 +7,6 @@
 <title>Lessons in Shelter — звук уроку в укритті</title>
 <meta name="description" content="Голос учителя в навушниках кожної дитини під час уроку в укритті. Без інтернету, без застосунку, без реєстрації.">
 <style>
-/* Жодних зовнішніх шрифтів і CDN: сторінка має відкриватись і без інтернету. */
 :root {
   --bg: #12151a;
   --surface: #1b2029;
@@ -31,7 +30,6 @@ html, body {
 body { padding: 0 16px 80px; }
 .wrap { max-width: 780px; margin: 0 auto; }
 
-/* ---------- шапка ---------- */
 header.hero { padding: 64px 0 40px; border-bottom: 1px solid var(--border); }
 .kicker { color: var(--accent); font-size: 14px; letter-spacing: .08em; text-transform: uppercase; font-weight: 650; }
 h1 { font-size: 40px; line-height: 1.15; margin: 12px 0 0; font-weight: 700; letter-spacing: -.02em; }
@@ -43,7 +41,6 @@ h1 { font-size: 40px; line-height: 1.15; margin: 12px 0 0; font-weight: 700; let
   padding: 5px 13px; background: var(--surface);
 }
 
-/* ---------- зміст ---------- */
 nav.toc { margin: 32px 0 0; padding: 18px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
 nav.toc b { font-size: 14px; color: var(--muted); font-weight: 600; }
 nav.toc ol { margin: 10px 0 0; padding-left: 20px; columns: 2; column-gap: 28px; }
@@ -51,7 +48,6 @@ nav.toc li { margin-bottom: 4px; break-inside: avoid; }
 nav.toc a { color: var(--text); text-decoration: none; border-bottom: 1px solid transparent; }
 nav.toc a:hover { border-bottom-color: var(--accent); }
 
-/* ---------- типографіка ---------- */
 h2 { font-size: 27px; margin: 56px 0 4px; font-weight: 680; letter-spacing: -.01em; scroll-margin-top: 20px; }
 h2 .num { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: 10px; }
 h3 { font-size: 19px; margin: 32px 0 6px; font-weight: 650; }
@@ -61,7 +57,6 @@ ul, ol { padding-left: 22px; }
 li { margin-bottom: 6px; }
 strong { font-weight: 650; }
 
-/* ---------- код ---------- */
 pre {
   background: #0d1015; border: 1px solid var(--border); border-radius: 12px;
   padding: 14px 16px; overflow-x: auto; margin: 14px 0;
@@ -74,7 +69,6 @@ code {
 }
 pre code { background: none; padding: 0; font-size: inherit; }
 
-/* ---------- схема ---------- */
 .diagram {
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
   padding: 22px 18px; margin: 20px 0; overflow-x: auto;
@@ -83,14 +77,12 @@ pre code { background: none; padding: 0; font-size: inherit; }
 }
 .diagram b { color: var(--accent); font-weight: 400; }
 
-/* ---------- таблиці ---------- */
 .tablewrap { overflow-x: auto; margin: 18px 0; }
 table { border-collapse: collapse; width: 100%; font-size: 15.5px; }
 th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
 th { color: var(--muted); font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
 tbody tr:last-child td { border-bottom: none; }
 
-/* ---------- врізки і кроки ---------- */
 .note {
   border-left: 3px solid var(--accent); background: var(--surface);
   border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 20px 0;
@@ -115,7 +107,6 @@ tbody tr:last-child td { border-bottom: none; }
 .steps h3 { margin-top: 0; }
 .steps > li > ol { padding-left: 20px; }
 
-/* ---------- для новачків: результат кроку, підказка, клавіші ---------- */
 .ok, .fix {
   font-size: 15.5px; padding: 10px 14px; border-radius: 10px; margin: 12px 0;
   background: var(--surface);

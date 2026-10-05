@@ -36,6 +36,13 @@
 
 ### Windows (ноутбук учителя)
 
+0. Один раз дозволити запуск скриптів — інакше PowerShell скаже, що файл «не має цифрового
+   підпису». У PowerShell, відкритому в папці проєкту:
+   ```powershell
+   Get-ChildItem -Recurse | Unblock-File
+   Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+   ```
+   На питання «Ви впевнені?» відповісти `Y`.
 1. Завантажити `mediamtx.exe` і `ffmpeg.exe` у [server/bin/](server/bin/):
    ```powershell
    .\server\win\download-tools.ps1

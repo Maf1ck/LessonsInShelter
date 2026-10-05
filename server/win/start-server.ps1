@@ -1,12 +1,4 @@
-﻿<#
-  Піднімає дві речі:
-    1) MediaMTX — роздає звук у браузери (WebRTC :8889, резерв HLS :8888)
-    2) статичний вебсервер зі сторінкою для дітей (:8080)
-
-  Мікрофон запускається окремо: .\start-mic.ps1 -Device "..." -Channel klas-5-1
-#>
-
-param([int]$WebPort = 8080)
+﻿param([int]$WebPort = 8080)
 
 . (Join-Path $PSScriptRoot "lib.ps1")
 Show-Banner
@@ -23,8 +15,6 @@ if (-not (Test-Path $mediamtx)) {
   exit 1
 }
 
-# Порт для сторінки буває зайнятий чужою програмою (pgAdmin/EnterpriseDB, Jenkins тощо).
-# Якщо це прогавити, телефони відкриють чужу сторінку, а не наш список класів.
 $busy = Get-NetTCPConnection -LocalPort $WebPort -State Listen -ErrorAction SilentlyContinue
 if ($busy) {
   $names = $busy | ForEach-Object { (Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).ProcessName } |
@@ -36,9 +26,6 @@ if ($busy) {
   exit 1
 }
 
-# Порти медіасервера. Найчастіша причина - попередній запуск, який не закрився:
-# MediaMTX тоді мовчки вмирає через 0.15 c, і без цієї перевірки лишається
-# незрозуміле "не стартував".
 foreach ($port in 8554, 8888, 8889) {
   $taken = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue
   if (-not $taken) { continue }
@@ -51,11 +38,6 @@ foreach ($port in 8554, 8888, 8889) {
   exit 1
 }
 
-# Чим роздавати сторінку - вирішуємо ДО запуску медіасервера.
-# Python вміє це без прав адміністратора, а вбудований HttpListener - ні.
-# Якщо дати йому підвищувати права самому, він відкриє нове вікно, поточне
-# закриється, і блок finally забере медіасервер із собою - сторінка буде,
-# а звуку не буде взагалі.
 $python = Get-Command python -ErrorAction SilentlyContinue
 if (-not $python) { $python = Get-Command py -ErrorAction SilentlyContinue }
 
@@ -72,7 +54,6 @@ if (-not $python) {
 }
 
 Write-Host "Запускаю медіасервер..." -ForegroundColor Cyan
-# Лапки обов'язкові: шлях може містити пробіли, а Start-Process їх сам не додає.
 $mtx = Start-Process -PassThru -WindowStyle Minimized -FilePath $mediamtx -ArgumentList ("`"" + $config + "`"")
 
 Start-Sleep -Milliseconds 800
@@ -99,7 +80,6 @@ try {
   if ($python) {
     & $python.Source -m http.server $WebPort --directory $web
   } else {
-    # Запасний варіант на вбудованому HttpListener (потребує прав адміністратора).
     & (Join-Path $PSScriptRoot "static-server.ps1") -Port $WebPort
   }
 } finally {

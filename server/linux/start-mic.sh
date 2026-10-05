@@ -1,10 +1,4 @@
 #!/usr/bin/env bash
-# Публікує звук петличного мікрофона в канал класу.
-#
-#   ./start-mic.sh plughw:1,0 klas-5-1          основний потік (WebRTC, Opus)
-#   SLOW=1 ./start-mic.sh plughw:1,0 klas-5-1   плюс резервний AAC-потік для HLS
-#
-# Список входів: arecord -l
 
 set -euo pipefail
 
@@ -15,8 +9,6 @@ SERVER="${SERVER:-127.0.0.1}"
 
 FILTER="highpass=f=90,acompressor=threshold=-18dB:ratio=3:attack=10:release=200,alimiter=limit=0.95"
 
-# Обидва потоки веде один процес: ALSA-вхід відкривається лише раз
-# (plughw другий раз просто не відкрився б), і AAC не розходиться з Opus.
 SLOW_OUT=()
 if [ "${SLOW:-0}" = "1" ]; then
   echo "Резервний AAC-потік для iPhone: $CHANNEL-slow"

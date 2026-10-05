@@ -1,19 +1,4 @@
-﻿<#
-  Відкриває у Windows-фаєрволі порти, без яких телефони не достукаються до сервера.
-  Запускати один раз, у PowerShell від імені адміністратора.
-
-  Порти:
-    8080/tcp  сторінка для дітей (інший порт - ключ -WebPort)
-    8889/tcp  WebRTC: домовленість про з'єднання (WHEP)
-    8189/udp  WebRTC: сам звук
-    8888/tcp  резервний HLS-потік для iPhone
-
-  Порт 8554 (RTSP) не відкриваємо: ним ffmpeg ходить лише всередині самого сервера.
-
-  Прибрати правила: .\allow-firewall.ps1 -Remove
-#>
-
-param([int]$WebPort = 8080, [switch]$Remove)
+﻿param([int]$WebPort = 8080, [switch]$Remove)
 
 $rules = @(
   @{ Name = "Lessons in Shelter - сторінка ($WebPort/tcp)"; Protocol = "TCP"; Port = $WebPort },
@@ -30,8 +15,6 @@ if (-not $admin) {
 }
 
 if ($Remove) {
-  # Прибираємо за префіксом, а не за списком: правило для сторінки могло бути
-  # створене з іншим -WebPort, і за точною назвою воно б не знайшлось.
   $mine = Get-NetFirewallRule -DisplayName "Lessons in Shelter*" -ErrorAction SilentlyContinue
   if (-not $mine) { Write-Host "Правил цього проєкту не знайдено." -ForegroundColor DarkGray }
   foreach ($m in $mine) {
@@ -47,7 +30,6 @@ foreach ($r in $rules) {
     Write-Host "Вже є: $($r.Name)" -ForegroundColor DarkGray
     continue
   }
-  # Profile Private: правило діє у шкільній/домашній мережі, а не в публічних Wi-Fi.
   New-NetFirewallRule -DisplayName $r.Name -Direction Inbound -Action Allow `
     -Protocol $r.Protocol -LocalPort $r.Port -Profile Private | Out-Null
   Write-Host "Відкрито: $($r.Name)" -ForegroundColor Green

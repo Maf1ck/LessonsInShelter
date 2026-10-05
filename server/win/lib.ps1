@@ -1,17 +1,4 @@
-﻿<#
-  Спільні дрібниці для скриптів у цій папці. Підключається так:
-    . (Join-Path $PSScriptRoot "lib.ps1")
-#>
-
-<#
-  Повертає IP-адреси, за якими телефони справді дістануть сервер.
-
-  Відсіює те, що тільки заплутає вчителя: петлю 127.x, автоадреси 169.254.x
-  (адаптер піднятий, але мережі немає) і віртуальні адаптери на кшталт Radmin VPN
-  чи VirtualBox. Якщо після відсіювання не лишилось нічого - віддаємо все, що є,
-  бо точка доступу могла бути піднята саме віртуальним адаптером.
-#>
-function Get-ServerAddresses {
+﻿function Get-ServerAddresses {
   $physical = @(
     Get-NetAdapter -ErrorAction SilentlyContinue |
       Where-Object { $_.Status -eq "Up" -and -not $_.Virtual } |
@@ -33,17 +20,12 @@ function Get-ServerAddresses {
   $real | Select-Object -ExpandProperty IPAddress
 }
 
-<#
-  Читає web/channels.json і повертає опис каналу або $null, якщо такого немає.
-  Потрібно, щоб помітити друкарську помилку в назві каналу ще до початку уроку.
-#>
 function Get-ChannelInfo {
   param([string]$Channel)
 
   Get-Channels | Where-Object { $_.id -eq $Channel } | Select-Object -First 1
 }
 
-# Усі канали з web/channels.json; порожньо, якщо файлу немає або він зламаний.
 function Get-Channels {
   $file = Join-Path $PSScriptRoot "..\..\web\channels.json"
   if (-not (Test-Path $file)) { return @() }
@@ -55,10 +37,6 @@ function Get-Channels {
   @($cfg.channels)
 }
 
-<#
-  Друкує таблицю класів: назва, сектор і код для start-mic.ps1 -Channel.
-  Щоб код класу не доводилось шукати у channels.json.
-#>
 function Show-Channels {
   $channels = @(Get-Channels)
   if ($channels.Count -eq 0) {
@@ -72,7 +50,6 @@ function Show-Channels {
   }
 }
 
-# Логотип і контакт розробника на початку кожного скрипта.
 function Show-Banner {
   $logo = @(
     "                       ▄███▄ ▄██         ██     ",

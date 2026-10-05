@@ -1,13 +1,4 @@
-﻿<#
-  Найпростіший статичний вебсервер для папки web (сторінка для дітей).
-  Без Python і без Node — лише вбудований у Windows HttpListener.
-
-  Запускати від імені адміністратора (інакше Windows не дозволить
-  слухати на всіх інтерфейсах), або один раз виконати:
-    netsh http add urlacl url=http://+:8080/ user=Everyone
-#>
-
-param([int]$Port = 8080)
+﻿param([int]$Port = 8080)
 
 $root = (Resolve-Path (Join-Path $PSScriptRoot "..\..\web")).Path
 
@@ -27,7 +18,6 @@ $listener.Prefixes.Add("http://+:$Port/")
 try {
   $listener.Start()
 } catch {
-  # Windows дозволяє слухати на всіх інтерфейсах тільки адміністратору.
   $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()
              ).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
   if (-not $isAdmin) {

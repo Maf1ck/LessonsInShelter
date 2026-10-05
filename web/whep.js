@@ -1,14 +1,6 @@
-/*
- * Мінімальний WHEP-клієнт (WebRTC-HTTP Egress Protocol) для MediaMTX.
- *
- * Навмисно без бібліотек і без CDN: усе має працювати в мережі без інтернету.
- * ICE-сервери не задаємо — сервер і телефон в одній локальній мережі,
- * тому вистачає host-кандидатів.
- */
-
 function WhepPlayer(opts) {
-  this.url = opts.url;                 // http://10.0.0.1:8889/klas-5-1/whep
-  this.audio = opts.audio;             // <audio> елемент
+  this.url = opts.url;
+  this.audio = opts.audio;
   this.onState = opts.onState || function () {};
   this.pc = null;
   this.stopped = true;
@@ -109,7 +101,6 @@ WhepPlayer.prototype._connect = function () {
     });
 };
 
-/* Не використовуємо trickle ICE: чекаємо кандидатів і шлемо один SDP. */
 function waitForIce(pc, timeoutMs) {
   return new Promise(function (resolve) {
     if (pc.iceGatheringState === 'complete') return resolve();

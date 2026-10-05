@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Медіасервер + сторінка для дітей. Мікрофон запускається окремо (start-mic.sh).
 
 set -euo pipefail
 

@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-# Підготовка Raspberry Pi (або будь-якого Debian/Ubuntu) до ролі шкільного радіовузла.
-# Виконати один раз, коли ще є інтернет.
 
 set -euo pipefail
 
