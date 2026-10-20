@@ -12,7 +12,8 @@
     "dist": "electron-builder --win"
   },
   "dependencies": {
-    "qrcode": "^1.5.4"
+    "qrcode": "^1.5.4",
+    "selfsigned": "^5.5.0"
   },
   "devDependencies": {
     "electron": "^33.2.0",
@@ -21,19 +22,52 @@
   "build": {
     "appId": "ua.lessonsinshelter.teacher",
     "productName": "Lessons in Shelter",
-    "directories": { "output": "dist", "buildResources": "build" },
-    "files": ["main.js", "preload.js", "lib/**", "renderer/**", "build/icon.png"],
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "lib/**",
+      "renderer/**",
+      "build/icon.png"
+    ],
     "extraResources": [
-      { "from": "../server/bin", "to": "server/bin", "filter": ["*.exe"] },
-      { "from": "../server/mediamtx.yml", "to": "server/mediamtx.yml" },
-      { "from": "../server/win/allow-firewall.ps1", "to": "server/win/allow-firewall.ps1" },
-      { "from": "../web", "to": "web" }
+      {
+        "from": "../server/bin",
+        "to": "server/bin",
+        "filter": [
+          "*.exe"
+        ]
+      },
+      {
+        "from": "../server/mediamtx.yml",
+        "to": "server/mediamtx.yml"
+      },
+      {
+        "from": "../server/win/allow-firewall.ps1",
+        "to": "server/win/allow-firewall.ps1"
+      },
+      {
+        "from": "../web",
+        "to": "web"
+      }
     ],
     "win": {
       "icon": "build/icon.png",
-      "target": [{ "target": "portable", "arch": ["x64"] }],
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
       "signAndEditExecutable": false
     },
-    "portable": { "artifactName": "LessonsInShelter.exe" }
+    "portable": {
+      "artifactName": "LessonsInShelter.exe"
+    }
   }
 }

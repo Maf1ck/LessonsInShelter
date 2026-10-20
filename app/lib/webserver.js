@@ -1,4 +1,5 @@
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
@@ -13,12 +14,51 @@ const MIME = {
   '.ico': 'image/x-icon',
 };
 
-// Сторінка для дітей. Замінює python -m http.server / static-server.ps1:
+const WEBRTC_PORT = 8889;
+
+function readBody(req, limit) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    let size = 0;
+    req.on('data', (c) => {
+      size += c.length;
+      if (size > limit) {
+        reject(Object.assign(new Error('too large'), { status: 413 }));
+        req.destroy();
+        return;
+      }
+      chunks.push(c);
+    });
+    req.on('end', () => resolve(Buffer.concat(chunks)));
+    req.on('error', reject);
+  });
+}
+
+// На HTTPS-сторінці браузер забороняє звертатись до http://:8889 (змішаний контент),
+// тому WHEP (слухати) і WHIP (говорити) проходять через цей же сервер до локального медіасервера.
+function proxyRtc(req, res, mediaPath, kind) {
+  readBody(req, 64 * 1024)
+    .then((body) => {
+      const up = http.request(
+        { host: '127.0.0.1', port: WEBRTC_PORT, path: `/${encodeURIComponent(mediaPath)}/${kind}`, method: 'POST', headers: { 'Content-Type': 'application/sdp', 'Content-Length': body.length } },
+        (r) => {
+          res.writeHead(r.statusCode, { 'Content-Type': r.headers['content-type'] || 'application/sdp', 'Cache-Control': 'no-store' });
+          r.pipe(res);
+        },
+      );
+      up.on('error', () => res.writeHead(502).end());
+      up.end(body);
+    })
+    .catch(() => res.writeHead(400).end());
+}
+
+// Сторінка для дітей + API класу. Замінює python -m http.server / static-server.ps1:
 // не потрібні ні Python, ні права адміністратора.
-function createWebServer(webDir, channelsFile, onPing = () => {}) {
+// api(req, res, pathname, query) -> true, якщо запит оброблено.
+function createHandler(webDir, channelsFile, api = () => false) {
   const root = path.resolve(webDir);
 
-  return http.createServer((req, res) => {
+  return (req, res) => {
     let pathname;
     let query;
     try {
@@ -30,12 +70,8 @@ function createWebServer(webDir, channelsFile, onPing = () => {}) {
       return;
     }
 
-    // Пульс зі сторінки слухача (див. listen.html).
-    if (pathname === '/ping') {
-      onPing(query.get('ch'), query.get('id'), query.get('bye') === '1');
-      res.writeHead(204, { 'Cache-Control': 'no-store' }).end();
-      return;
-    }
+    if (api(req, res, pathname, query)) return;
+
     if (pathname.endsWith('/')) pathname += 'index.html';
 
     const file = pathname === '/channels.json' ? channelsFile : path.resolve(root, '.' + pathname);
@@ -55,8 +91,11 @@ function createWebServer(webDir, channelsFile, onPing = () => {}) {
       });
       res.end(req.method === 'HEAD' ? undefined : data);
     });
-  });
+  };
 }
+
+const createWebServer = (handler) => http.createServer(handler);
+const createSecureServer = (handler, { key, cert }) => https.createServer({ key, cert }, handler);
 
 // Пробує порт, а якщо зайнятий (pgAdmin, Jenkins...) - наступні.
 function listenOnFreePort(server, firstPort, attempts = 20) {
@@ -81,4 +120,4 @@ function listenOnFreePort(server, firstPort, attempts = 20) {
   });
 }
 
-module.exports = { createWebServer, listenOnFreePort };
+module.exports = { createHandler, createWebServer, createSecureServer, listenOnFreePort, readBody, proxyRtc };

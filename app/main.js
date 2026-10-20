@@ -5,7 +5,10 @@ const path = require('path');
 const paths = require('./lib/paths');
 const settingsStore = require('./lib/settings');
 const { getAddresses } = require('./lib/network');
-const { createWebServer, listenOnFreePort } = require('./lib/webserver');
+const { createHandler, createWebServer, createSecureServer, listenOnFreePort } = require('./lib/webserver');
+const { Classroom } = require('./lib/classroom');
+const { createApi } = require('./lib/classroomApi');
+const { getCertificate } = require('./lib/cert');
 const { listMics } = require('./lib/devices');
 const firewall = require('./lib/firewall');
 const { Engine } = require('./lib/engine');
@@ -20,21 +23,22 @@ let settings = null;
 let channelsCfg = null;
 let devices = [];
 let webServer = null;
+let httpsServer = null;
 let webPort = 0;
+let httpsPort = 0;
 let blockerId = null;
 let quitting = false;
 let busy = false; // йде підготовка до запуску (фаєрвол тощо)
 let diag = { known: false, portsOk: true, publicNet: false, firewallDenied: false };
 let links = { urls: [], qr: '', wifiQr: '' };
 const engine = new Engine();
-const pulses = new Map(); // id слухача -> { ch, at }
-const PULSE_TTL_MS = 20000;
+const classroom = new Classroom();
 
 const isLive = () => engine.running;
 
 function snapshot() {
   const status = busy && !engine.running
-    ? { phase: 'starting', message: busy, listeners: 0, startedAt: 0, silent: false }
+    ? { phase: 'starting', message: busy, listeners: 0, startedAt: 0, silent: false, muted: false }
     : engine.status;
   return {
     settings,
@@ -43,6 +47,8 @@ function snapshot() {
     channels: channelsCfg.channels,
     devices,
     webPort,
+    httpsPort,
+    classroom: classroom.view(settings.channel),
     status,
     diag,
     links,
@@ -100,14 +106,15 @@ async function startLesson() {
   busy = 'Перевіряю мережу…';
   push();
   try {
-    diag = { ...diag, ...(await firewall.check(webPort)) };
+    diag = { ...diag, ...(await firewall.check(webPort, httpsPort)) };
     if (diag.known && !diag.portsOk) {
       busy = 'Дозвольте доступ у вікні Windows (потрібно один раз)…';
       push();
-      diag.firewallDenied = !(await firewall.openPorts(webPort));
-      diag = { ...diag, ...(await firewall.check(webPort)) };
+      diag.firewallDenied = !(await firewall.openPorts(webPort, httpsPort));
+      diag = { ...diag, ...(await firewall.check(webPort, httpsPort)) };
     }
     await rebuildLinks();
+    classroom.reset();
     busy = false;
     await engine.start({
       device: settings.device,
@@ -144,6 +151,7 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
+      autoplayPolicy: 'no-user-gesture-required', // сигнали «урок пішов» у режимі автозапуску
     },
   });
   win.removeMenu();
@@ -205,6 +213,16 @@ function registerIpc() {
     push();
   });
 
+  ipcMain.handle('mute', (_e, muted) => engine.setMuted(muted));
+  ipcMain.handle('reply', (_e, text, to) => classroom.reply(settings.channel, text, to));
+  ipcMain.handle('giveFloor', (_e, id) => classroom.giveFloor(settings.channel, id));
+  ipcMain.handle('takeFloor', () => classroom.takeFloor(settings.channel));
+  ipcMain.handle('chatOpen', (_e, open) => classroom.setChatOpen(open));
+  ipcMain.handle('kick', (_e, id) => {
+    classroom.kick(id);
+    engine.enforceBans();
+  });
+  ipcMain.handle('unban', (_e, id) => classroom.unban(id));
   ipcMain.handle('copy', (_e, text) => clipboard.writeText(String(text)));
   ipcMain.handle('openChannelsFile', () => shell.openPath(settingsStore.ensureChannelsFile()));
   ipcMain.handle('reloadChannels', async () => {
@@ -214,7 +232,7 @@ function registerIpc() {
   ipcMain.handle('openPoster', () => shell.openExternal(`http://127.0.0.1:${webPort}/print.html`));
   ipcMain.handle('fixNetwork', async () => {
     await firewall.makeNetworkPrivate();
-    diag = { ...diag, ...(await firewall.check(webPort)) };
+    diag = { ...diag, ...(await firewall.check(webPort, httpsPort)) };
     push();
   });
 }
@@ -226,25 +244,34 @@ app.whenReady().then(async () => {
   channelsCfg = settingsStore.loadChannels();
   if (!settings.channel && channelsCfg.channels[0]) settings.channel = channelsCfg.channels[0].id;
 
-  webServer = createWebServer(paths.webDir, settingsStore.ensureChannelsFile(), (ch, id, bye) => {
-    if (!ch || !id) return;
-    if (bye) pulses.delete(id);
-    else pulses.set(id, { ch, at: Date.now() });
-  });
-  engine.pulseCount = (ch) => {
-    const fresh = Date.now() - PULSE_TTL_MS;
-    let n = 0;
-    for (const [id, p] of pulses) {
-      if (p.at < fresh) pulses.delete(id);
-      else if (p.ch === ch) n++;
-    }
-    return n;
-  };
+  const handler = createHandler(
+    paths.webDir,
+    settingsStore.ensureChannelsFile(),
+    createApi(classroom, () => ({ httpsPort })),
+  );
+  webServer = createWebServer(handler);
   try {
     webPort = await listenOnFreePort(webServer, settings.webPort);
   } catch (e) {
     webPort = 0;
   }
+
+  // HTTPS-версія сторінки - лише для голосової відповіді учня (мікрофон потребує HTTPS).
+  try {
+    const cert = await getCertificate(getAddresses().map((a) => a.ip));
+    httpsServer = createSecureServer(handler, cert);
+    httpsPort = await listenOnFreePort(httpsServer, 8443);
+  } catch (e) {
+    httpsPort = 0;
+  }
+
+  engine.pulseCount = (ch) => classroom.count(ch);
+  engine.bannedIps = () => classroom.bannedIps();
+  let pending = null;
+  classroom.on('change', () => {
+    pending = pending || setTimeout(() => { pending = null; push(); }, 150);
+  });
+  classroom.on('question', (m) => win && !win.isDestroyed() && win.webContents.send('question', { n: m.n, name: m.name }));
 
   registerIpc();
   engine.on('status', (s) => {
@@ -268,6 +295,7 @@ app.on('before-quit', () => {
   quitting = true;
   engine.killNow();
   webServer?.close();
+  httpsServer?.close();
 });
 
 app.on('window-all-closed', () => {

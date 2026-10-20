@@ -125,3 +125,50 @@ button { font: inherit; cursor: pointer; }
 .settings[open] summary { margin-bottom: 12px; }
 .check { display: flex; gap: 10px; align-items: flex-start; margin: 8px 0; color: var(--text); }
 .check input { margin-top: 3px; accent-color: var(--accent); }
+
+/* Тиша, підтвердження завершення */
+.muted-banner { background: #2a2113; border: 1px solid #5a4516; color: #f2d58c; border-radius: 10px; padding: 8px 12px; margin-bottom: 12px; font-size: 13.5px; text-align: center; }
+.main-btn[data-state="confirm"] { background: var(--warn); color: #231703; font-size: 22px; }
+
+/* Клас: учні, чат, слово */
+.class-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.class-head .label { margin: 0 !important; }
+.check.small { margin: 0; font-size: 13px; color: var(--muted); }
+.students { display: grid; gap: 6px; max-height: 190px; overflow-y: auto; margin-bottom: 4px; }
+.student { display: flex; align-items: center; gap: 8px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 6px 6px 6px 12px; }
+.student.has-floor { border-color: var(--accent); }
+.student .name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.student .ghost { padding: 5px 10px; font-size: 13px; }
+.student .ghost.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.empty { color: var(--muted); font-size: 13px; padding: 6px 2px; }
+
+.chat { display: grid; gap: 6px; max-height: 240px; overflow-y: auto; margin-bottom: 10px; }
+.msg { background: var(--surface-2); border-radius: 12px; padding: 7px 10px; font-size: 14px; word-break: break-word; }
+.msg b { color: var(--accent); font-weight: 600; margin-right: 6px; }
+.msg.teacher { background: #1f2a24; justify-self: end; max-width: 88%; }
+.msg.teacher b { color: var(--ok); }
+.msg .ghost { padding: 3px 9px; font-size: 12px; margin-left: 8px; }
+.replying { font-size: 12.5px; color: var(--muted); margin-bottom: 6px; }
+.replying button { background: none; border: none; color: var(--muted); margin-left: 6px; }
+
+.student .state { font-size: 12px; color: var(--muted); }
+.student .state.on { color: var(--ok); }
+
+/* Кнопка мікрофона (перекреслена, коли вимкнено) */
+.live .stats { grid-template-columns: 1fr auto 1fr; align-items: center; }
+.mic-btn {
+  width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center; padding: 0;
+  background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
+  transition: background .15s, transform .1s, border-color .15s;
+}
+.mic-btn:hover { border-color: var(--muted); }
+.mic-btn:active { transform: scale(.94); }
+.mic-btn .slash { display: none; }
+.mic-btn[aria-pressed="true"] { background: var(--err); border-color: var(--err); color: #fff; }
+.mic-btn[aria-pressed="true"] .slash { display: block; stroke-width: 2.6; }
+
+.student .ghost.danger { color: var(--err); border-color: #66302b; }
+.student .ghost.danger.armed { background: var(--err); color: #fff; border-color: var(--err); }
+.banned { font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; margin-top: 6px; }
+.banned button { background: none; border: none; color: var(--accent); padding: 0; text-decoration: underline; }
+.speaking { margin-top: 8px; padding: 8px 12px; border-radius: 10px; background: #1f2a24; border: 1px solid #2f5a45; color: var(--ok); font-size: 14px; }

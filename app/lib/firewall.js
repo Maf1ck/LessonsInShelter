@@ -21,7 +21,7 @@ function elevated(script, timeout = 120000) {
 }
 
 // Які порти вже відкриті правилами проєкту і чи не "публічна" Wi-Fi мережа.
-async function check(webPort) {
+async function check(webPort, httpsPort) {
   const { ok, out } = await ps(
     "Get-NetFirewallRule -DisplayName 'Lessons in Shelter*' -ErrorAction SilentlyContinue | Get-NetFirewallPortFilter | ForEach-Object { $_.Protocol + ':' + $_.LocalPort };" +
       "Get-NetConnectionProfile -ErrorAction SilentlyContinue | Where-Object { $_.IPv4Connectivity -ne 'Disconnected' } | ForEach-Object { 'NET:' + $_.NetworkCategory }",
@@ -30,6 +30,7 @@ async function check(webPort) {
 
   const lines = out.split(/\r?\n/).map((l) => l.trim());
   const need = [`TCP:${webPort}`, 'TCP:8889', 'UDP:8189', 'TCP:8888'];
+  if (httpsPort) need.push(`TCP:${httpsPort}`);
   return {
     known: true,
     portsOk: need.every((n) => lines.includes(n)),
@@ -38,9 +39,9 @@ async function check(webPort) {
 }
 
 // Той самий allow-firewall.ps1, що й у ручній інструкції.
-async function openPorts(webPort) {
+async function openPorts(webPort, httpsPort) {
   const p = paths.firewallScript.replace(/'/g, "''");
-  const r = await elevated(`& '${p}' -WebPort ${Number(webPort)}`);
+  const r = await elevated(`& '${p}' -WebPort ${Number(webPort)} -HttpsPort ${Number(httpsPort) || 8443}`);
   return r.ok;
 }
 

@@ -1,10 +1,11 @@
-﻿param([int]$WebPort = 8080, [switch]$Remove)
+﻿param([int]$WebPort = 8080, [int]$HttpsPort = 8443, [switch]$Remove)
 
 $rules = @(
   @{ Name = "Lessons in Shelter - сторінка ($WebPort/tcp)"; Protocol = "TCP"; Port = $WebPort },
   @{ Name = "Lessons in Shelter - WebRTC (8889/tcp)";   Protocol = "TCP"; Port = 8889 },
   @{ Name = "Lessons in Shelter - WebRTC звук (8189/udp)"; Protocol = "UDP"; Port = 8189 },
-  @{ Name = "Lessons in Shelter - HLS для iPhone (8888/tcp)"; Protocol = "TCP"; Port = 8888 }
+  @{ Name = "Lessons in Shelter - HLS для iPhone (8888/tcp)"; Protocol = "TCP"; Port = 8888 },
+  @{ Name = "Lessons in Shelter - HTTPS для голосу учнів ($HttpsPort/tcp)"; Protocol = "TCP"; Port = $HttpsPort }
 )
 
 $admin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(

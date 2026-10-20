@@ -7,7 +7,8 @@ const paths = require('./paths');
 const { isPortOpen, waitForPort } = require('./network');
 
 const API_PORT = 9997;
-const FILTER = 'highpass=f=90,acompressor=threshold=-18dB:ratio=3:attack=10:release=200,alimiter=limit=0.95';
+const FILTER_BASE = 'highpass=f=90,acompressor=threshold=-18dB:ratio=3:attack=10:release=200,alimiter=limit=0.95';
+const filterFor = (muted) => `volume@m=${muted ? 0 : 1},${FILTER_BASE}`;
 const SILENCE_DB = -55;
 const SILENCE_AFTER_MS = 20000;
 
@@ -31,13 +32,14 @@ class Engine extends EventEmitter {
     this.retry = null;
     this.running = false;
     this.opts = null;
+    this.muted = false;
     this.lastLoudAt = 0;
     this.lastLevelEmit = 0;
     this.status = this.idle();
   }
 
   idle() {
-    return { phase: 'idle', message: '', listeners: 0, startedAt: 0, silent: false };
+    return { phase: 'idle', message: '', listeners: 0, startedAt: 0, silent: false, muted: false };
   }
 
   setStatus(patch) {
@@ -49,6 +51,7 @@ class Engine extends EventEmitter {
     if (this.running) return;
     this.running = true;
     this.opts = opts;
+    this.muted = false;
     this.status = { ...this.idle(), phase: 'starting', message: 'Запускаю медіасервер…', startedAt: Date.now() };
     this.emit('status', this.status);
 
@@ -99,6 +102,7 @@ class Engine extends EventEmitter {
 
   spawnFfmpeg() {
     const { device, channel, bitrate, slow } = this.opts;
+    const FILTER = filterFor(this.muted);
     const out = (url) => ['-f', 'rtsp', '-rtsp_transport', 'tcp', url];
     const args = [
       '-hide_banner', '-loglevel', 'warning',
@@ -122,7 +126,11 @@ class Engine extends EventEmitter {
     this.ffLog = '';
     this.lastLoudAt = Date.now();
     this.ffmpeg = spawn(paths.ffmpeg, args, { windowsHide: true });
-    this.ffmpeg.stderr.on('data', (d) => { this.ffLog = (this.ffLog + d).slice(-1500); });
+    this.ffmpeg.stderr.on('data', (d) => {
+      // Відповіді ffmpeg на команди вимкнення звуку - не помилки.
+      this.ffLog = (this.ffLog + String(d).replace(/Enter command:.*|Command reply.*/g, '')).slice(-1500);
+    });
+    this.ffmpeg.stdin.on('error', () => {});
     this.ffmpeg.stdout.on('data', (buf) => this.onAudio(buf));
     this.ffmpeg.on('exit', () => {
       this.ffmpeg = null;
@@ -160,6 +168,24 @@ class Engine extends EventEmitter {
     }
   }
 
+  // Вигнані учні: закриваємо їхні WebRTC-сесії (і повторні спроби підключитись) за IP.
+  async enforceBans() {
+    const banned = this.bannedIps ? this.bannedIps() : null;
+    if (!banned || !banned.size) return;
+    try {
+      const res = await fetch(`http://127.0.0.1:${API_PORT}/v3/webrtcsessions/list`, { signal: AbortSignal.timeout(1000) });
+      const data = await res.json();
+      for (const it of data.items || []) {
+        const ip = String(it.remoteAddr || '').replace(/:\d+$/, '');
+        if (banned.has(ip)) {
+          fetch(`http://127.0.0.1:${API_PORT}/v3/webrtcsessions/kick/${it.id}`, { method: 'POST', signal: AbortSignal.timeout(1000) }).catch(() => {});
+        }
+      }
+    } catch {
+      /* API ще не піднялось */
+    }
+  }
+
   async poll() {
     if (!this.running) return;
     const { channel } = this.opts;
@@ -179,13 +205,14 @@ class Engine extends EventEmitter {
       }
     }
     if (!this.running) return;
+    await this.enforceBans();
 
     // Сторінки слухачів самі шлють пульс - це точніше за сесії медіасервера
     // (враховує і резервний HLS-режим, і телефони, що вже закрили сторінку).
     const pulses = this.pulseCount ? this.pulseCount(channel) : 0;
     if (pulses > 0) listeners = pulses;
 
-    const silent = ready && Date.now() - this.lastLoudAt > SILENCE_AFTER_MS;
+    const silent = ready && !this.muted && Date.now() - this.lastLoudAt > SILENCE_AFTER_MS;
     if (ready) {
       this.setStatus({ phase: 'live', message: '', listeners, silent });
     } else if (this.status.phase === 'live') {
@@ -206,6 +233,18 @@ class Engine extends EventEmitter {
     this.status = this.idle();
     this.emit('status', this.status);
     this.emit('level', 0);
+  }
+
+  // "Тиша": ffmpeg не перезапускається, тому слухачі не відключаються, просто звук нульовий.
+  setMuted(muted) {
+    this.muted = !!muted;
+    if (this.ffmpeg && this.ffmpeg.exitCode === null) {
+      const ff = this.ffmpeg;
+      ff.stdin.write('c');
+      setTimeout(() => ff.exitCode === null && ff.stdin.write(`volume@m -1 volume ${this.muted ? 0 : 1}\n`), 150);
+    }
+    this.lastLoudAt = Date.now();
+    this.setStatus({ muted: this.muted, silent: false });
   }
 
   // Синхронне прибирання при виході із застосунку.

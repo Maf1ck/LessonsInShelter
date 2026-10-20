@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; img-src 'self' data:">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; img-src 'self' data:; connect-src http://127.0.0.1:8889">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lessons in Shelter</title>
   <link rel="stylesheet" href="style.css">
@@ -38,8 +38,18 @@
     <section class="card live" id="live" hidden>
       <div class="stats">
         <div><div class="stat-val" id="timer">00:00</div><div class="stat-name">триває</div></div>
+        <button class="mic-btn" id="mute" type="button" aria-pressed="false" aria-label="Вимкнути мікрофон" title="Вимкнути мікрофон">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <path d="M12 19v3"/>
+            <path class="slash" d="M3 3l18 18"/>
+          </svg>
+        </button>
         <div><div class="stat-val" id="listeners">0</div><div class="stat-name">слухають</div></div>
       </div>
+
+      <div class="muted-banner" id="mutedBanner" hidden>Мікрофон вимкнено — діти вас не чують</div>
 
       <div class="meter" title="Рівень голосу">
         <div class="meter-fill" id="meter"></div>
@@ -59,6 +69,24 @@
 
       <div class="urls" id="urls"></div>
       <button class="ghost wide" id="poster">Роздрукувати аркуш для стіни</button>
+    </section>
+
+    <section class="card" id="classroom" hidden>
+      <div class="class-head">
+        <div class="label" id="studentsLabel">Учні</div>
+        <label class="check small"><input type="checkbox" id="chatOpen"> Чат відкритий</label>
+      </div>
+      <div class="students" id="students"></div>
+      <div class="banned" id="banned" hidden></div>
+      <div class="speaking" id="speaking" hidden></div>
+
+      <div class="label">Питання і відповіді</div>
+      <div class="chat" id="chat"></div>
+      <div class="replying" id="replying" hidden></div>
+      <div class="row">
+        <input type="text" id="replyText" maxlength="200" placeholder="Відповісти…">
+        <button class="ghost" id="replyBtn" type="button">Надіслати</button>
+      </div>
     </section>
 
     <details class="card settings">

@@ -15,6 +15,20 @@
   <div class="channel-title" id="title">—</div>
   <div class="channel-sub" id="sub"></div>
 
+  <form class="name-gate" id="nameGate" hidden>
+    <div class="gate-title">Як тебе звати?</div>
+    <div class="gate-sub">Вчитель побачить твоє імʼя, коли ти поставиш питання.</div>
+    <input type="text" id="nameInput" maxlength="20" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="Твоє імʼя">
+    <div class="gate-note">Літери, цифри, пробіл, дефіс. До 20 символів: <span id="nameCount">0 / 20</span></div>
+    <button type="submit" class="listen-btn gate-btn" id="nameOk" disabled>Далі</button>
+  </form>
+
+  <div class="kicked-box" id="kickedBox" hidden>
+    <div class="gate-title">Тебе відключено від уроку</div>
+    <div class="gate-sub">Вчитель відключив тебе від цього уроку. Якщо це помилка - підійди й скажи вчителю.</div>
+  </div>
+
+  <div class="player-body">
   <button class="listen-btn" id="btn" data-state="idle">▶ Слухати</button>
 
   <div class="status" id="status" data-state="idle">
@@ -34,6 +48,22 @@
     <button id="fallbackBtn" hidden>Спробувати повільний режим</button>
   </div>
 
+  <div class="floor" id="floor" hidden>
+    <div class="floor-title">Вчитель дає тобі слово</div>
+    <button type="button" class="floor-btn" id="floorBtn">Натисни і говори</button>
+    <div class="floor-note" id="floorNote"></div>
+  </div>
+
+  <div class="chatbox" id="chatbox" hidden>
+    <div class="chat-title">Запитати вчителя <span class="chat-who">· <span id="who"></span> <a href="#" id="renameLink">змінити</a></span></div>
+    <div class="chat-log" id="chatLog"></div>
+    <form class="chat-form" id="chatForm">
+      <input type="text" id="chatInput" maxlength="200" autocomplete="off" placeholder="Напиши питання…">
+      <button type="submit" id="chatSend">Надіслати</button>
+    </form>
+    <div class="chat-note" id="chatNote"></div>
+  </div>
+
   <div class="share" id="share" hidden>
     <div class="share-label">Пряме посилання на цей клас</div>
     <div class="share-row">
@@ -51,11 +81,13 @@
       <li>Якщо телефон запитує «Мережа без інтернету» — обери «Залишатися підключеним».</li>
     </ul>
   </div>
+  </div>
 </div>
 
 <audio id="audio" autoplay playsinline></audio>
 
 <script src="whep.js"></script>
+<script src="classroom.js"></script>
 <script>
 (function () {
   var params = new URLSearchParams(location.search);
@@ -78,26 +110,8 @@
     error: 'Помилка'
   };
 
-  // Пульс для лічильника слухачів в застосунку вчителя: поки звук іде,
-  // раз на кілька секунд повідомляємо серверу, що ми тут (WebRTC і резервний режим).
-  var clientId = Math.random().toString(36).slice(2) + Date.now().toString(36);
-  var pulse = null;
-  function ping(bye) {
-    if (!chId) return;
-    var url = 'ping?ch=' + encodeURIComponent(chId) + '&id=' + clientId + (bye ? '&bye=1' : '');
-    try {
-      if (bye && navigator.sendBeacon) navigator.sendBeacon(url);
-      else fetch(url, { cache: 'no-store' }).catch(function () {});
-    } catch (e) {}
-  }
-  function setPulse(on) {
-    if (on && !pulse) { ping(); pulse = setInterval(ping, 7000); }
-    if (!on && pulse) { clearInterval(pulse); pulse = null; ping(true); }
-  }
-  window.addEventListener('pagehide', function () { setPulse(false); });
-
   function setState(state, message) {
-    setPulse(state === 'live');
+    if (window.ShelterClass) ShelterClass.setPulse(state === 'live');
     statusEl.dataset.state = state;
     statusText.textContent = message || LABEL[state] || '';
     btn.dataset.state = state;
@@ -112,7 +126,7 @@
       levelEl.hidden = true;
       resetBars();
     }
-    fallbackBtn.hidden = (state !== 'error' && state !== 'connecting');
+    fallbackBtn.hidden = location.protocol === 'https:' || (state !== 'error' && state !== 'connecting');
   }
 
   function resetBars() {
@@ -134,7 +148,9 @@
 
       var port = c.webrtcPort || 8889;
       player = new WhepPlayer({
-        url: location.protocol + '//' + location.hostname + ':' + port + '/' + encodeURIComponent(channel.id) + '/whep',
+        url: location.protocol === 'https:'
+          ? '/whep/' + encodeURIComponent(channel.id) + '?id=' + (window.ShelterClass ? ShelterClass.id : '')
+          : location.protocol + '//' + location.hostname + ':' + port + '/' + encodeURIComponent(channel.id) + '/whep',
         audio: audio,
         onState: setState
       });
@@ -153,6 +169,13 @@
       player.stop();
       releaseWakeLock();
     }
+  });
+
+  // Вчитель вигнав з уроку: зупиняємо звук повністю (і WebRTC, і резервний режим).
+  window.addEventListener('shelter:kicked', function () {
+    if (player) player.stop();
+    try { audio.pause(); audio.removeAttribute('src'); audio.srcObject = null; audio.load(); } catch (e) {}
+    releaseWakeLock();
   });
 
   document.getElementById('vol').addEventListener('input', function () {
