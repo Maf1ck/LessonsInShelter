@@ -1,0 +1,39 @@
+{
+  "name": "lessons-in-shelter-app",
+  "productName": "Lessons in Shelter",
+  "version": "1.0.0",
+  "description": "Застосунок учителя: звук уроку в укритті в два кліки",
+  "author": "maf1ck",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "icon": "node scripts/make-icon.js",
+    "dist": "electron-builder --win"
+  },
+  "dependencies": {
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "ua.lessonsinshelter.teacher",
+    "productName": "Lessons in Shelter",
+    "directories": { "output": "dist", "buildResources": "build" },
+    "files": ["main.js", "preload.js", "lib/**", "renderer/**", "build/icon.png"],
+    "extraResources": [
+      { "from": "../server/bin", "to": "server/bin", "filter": ["*.exe"] },
+      { "from": "../server/mediamtx.yml", "to": "server/mediamtx.yml" },
+      { "from": "../server/win/allow-firewall.ps1", "to": "server/win/allow-firewall.ps1" },
+      { "from": "../web", "to": "web" }
+    ],
+    "win": {
+      "icon": "build/icon.png",
+      "target": [{ "target": "portable", "arch": ["x64"] }],
+      "signAndEditExecutable": false
+    },
+    "portable": { "artifactName": "LessonsInShelter.exe" }
+  }
+}

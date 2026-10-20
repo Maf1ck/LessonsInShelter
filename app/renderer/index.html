@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; img-src 'self' data:">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lessons in Shelter</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <header>
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14v-2a9 9 0 0 1 18 0v2"/><path d="M3 14h3a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H5a2 2 0 0 1-2-2z"/><path d="M21 14h-3a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h1a2 2 0 0 0 2-2z"/></svg>
+      </div>
+      <div>
+        <h1>Lessons in Shelter</h1>
+        <div class="site" id="site"></div>
+      </div>
+    </header>
+
+    <div id="alerts"></div>
+
+    <section class="card" id="setup">
+      <div class="label">Клас</div>
+      <div class="chips" id="channels"></div>
+
+      <div class="label">Мікрофон</div>
+      <div class="row">
+        <select id="device"></select>
+        <button class="ghost" id="refresh" title="Оновити список мікрофонів">Оновити</button>
+      </div>
+    </section>
+
+    <button class="main-btn" id="mainBtn" data-state="idle">Почати урок</button>
+    <div class="hint" id="hint"></div>
+
+    <section class="card live" id="live" hidden>
+      <div class="stats">
+        <div><div class="stat-val" id="timer">00:00</div><div class="stat-name">триває</div></div>
+        <div><div class="stat-val" id="listeners">0</div><div class="stat-name">слухають</div></div>
+      </div>
+
+      <div class="meter" title="Рівень голосу">
+        <div class="meter-fill" id="meter"></div>
+      </div>
+      <div class="meter-note" id="meterNote">Говоріть - смужка має рухатись</div>
+
+      <div class="share">
+        <div class="qr-block">
+          <div class="qr" id="qr"></div>
+          <div class="qr-cap">Відкрити урок</div>
+        </div>
+        <div class="qr-block" id="wifiBlock" hidden>
+          <div class="qr" id="wifiQr"></div>
+          <div class="qr-cap">Підключитись до Wi-Fi</div>
+        </div>
+      </div>
+
+      <div class="urls" id="urls"></div>
+      <button class="ghost wide" id="poster">Роздрукувати аркуш для стіни</button>
+    </section>
+
+    <details class="card settings">
+      <summary>Налаштування</summary>
+
+      <label class="check"><input type="checkbox" id="autoStart"> Починати урок одразу після відкриття застосунку</label>
+      <label class="check"><input type="checkbox" id="launchAtLogin"> Запускати разом з Windows</label>
+      <label class="check"><input type="checkbox" id="slow"> Резервний режим для iPhone (трохи більше навантаження)</label>
+
+      <div class="label">Wi-Fi для QR-коду (необов'язково)</div>
+      <div class="row">
+        <input type="text" id="wifiSsid" placeholder="Назва мережі">
+        <input type="text" id="wifiPassword" placeholder="Пароль">
+      </div>
+
+      <div class="row spaced">
+        <button class="ghost" id="editChannels">Змінити список класів</button>
+        <button class="ghost" id="reloadChannels">Перечитати</button>
+      </div>
+    </details>
+  </main>
+  <script src="renderer.js"></script>
+</body>
+</html>

@@ -78,7 +78,26 @@
     error: 'Помилка'
   };
 
+  // Пульс для лічильника слухачів в застосунку вчителя: поки звук іде,
+  // раз на кілька секунд повідомляємо серверу, що ми тут (WebRTC і резервний режим).
+  var clientId = Math.random().toString(36).slice(2) + Date.now().toString(36);
+  var pulse = null;
+  function ping(bye) {
+    if (!chId) return;
+    var url = 'ping?ch=' + encodeURIComponent(chId) + '&id=' + clientId + (bye ? '&bye=1' : '');
+    try {
+      if (bye && navigator.sendBeacon) navigator.sendBeacon(url);
+      else fetch(url, { cache: 'no-store' }).catch(function () {});
+    } catch (e) {}
+  }
+  function setPulse(on) {
+    if (on && !pulse) { ping(); pulse = setInterval(ping, 7000); }
+    if (!on && pulse) { clearInterval(pulse); pulse = null; ping(true); }
+  }
+  window.addEventListener('pagehide', function () { setPulse(false); });
+
   function setState(state, message) {
+    setPulse(state === 'live');
     statusEl.dataset.state = state;
     statusText.textContent = message || LABEL[state] || '';
     btn.dataset.state = state;
